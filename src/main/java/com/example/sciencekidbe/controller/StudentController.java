@@ -2,14 +2,11 @@ package com.example.sciencekidbe.controller;
 
 import com.example.sciencekidbe.dto.ManualDTO;
 import com.example.sciencekidbe.dto.StudentDTO;
-import com.example.sciencekidbe.model.Manual;
 import com.example.sciencekidbe.model.Student;
 import com.example.sciencekidbe.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -30,22 +27,29 @@ public class StudentController {
     @PostMapping("/add")
     public ResponseEntity<?> addStudent(@RequestBody StudentDTO studentDTO){
         try{
-            Student newStudent = studentService.addStudent(studentDTO);
-
-            return new ResponseEntity<>(newStudent,HttpStatus.CREATED);
+            studentService.addStudent(studentDTO);
+            return new ResponseEntity<>(HttpStatus.CREATED);
         }catch (IllegalArgumentException e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<List<StudentDTO>> getAllStudents(){
+    @GetMapping("/{studentId}")
+    public ResponseEntity<?> getStudentById(@PathVariable Long studentId)
+    {
         try{
-            List<StudentDTO> students = studentService.getAllStudent();
-            return new ResponseEntity<>(students, HttpStatus.OK);
-        }catch(IllegalArgumentException e){
+            StudentDTO student = studentService.getStudentById(studentId);
+            return new ResponseEntity<>(student, HttpStatus.OK);
+        } catch (IllegalArgumentException e)
+        {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<StudentDTO>> getAllStudents(){
+        List<StudentDTO> students = studentService.getAllStudents();
+        return new ResponseEntity<>(students, HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/{studentId}")
@@ -69,10 +73,10 @@ public class StudentController {
     }
 
     @GetMapping("/manuals")
-    public ResponseEntity<List<ManualDTO>> getManualForStudent(@RequestParam String studentEmail){
+    public ResponseEntity<List<ManualDTO>> getManualForStudent(@RequestParam Long studentId){
         try{
-            String className = studentService.findClassNameByEmail(studentEmail);
-            List<ManualDTO> manuals = studentService.getManualForStudent(className);
+            Long classId = studentService.getStudentById(studentId).getClassEntityId();
+            List<ManualDTO> manuals = studentService.getManualForStudent(classId);
             return new ResponseEntity<>(manuals, HttpStatus.OK);
         } catch (IllegalArgumentException e){
             return new ResponseEntity<>(Collections.emptyList(), HttpStatus.BAD_REQUEST);

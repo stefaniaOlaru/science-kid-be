@@ -41,7 +41,7 @@ public class ClassEntityService {
                         student.getEmail(),
                         student.getBirthdate(),
                         student.getJoinDate(),
-                        student.getClassEntity().getClassName()
+                        student.getClassEntity().getClassId()
                 ))
                 .collect(Collectors.toList());
 

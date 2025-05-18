@@ -7,13 +7,15 @@ import java.util.List;
 
 public interface IStudentService {
 
-       Student addStudent(StudentDTO studentDTO);
+       void addStudent(StudentDTO studentDTO);
 
-       List<StudentDTO> getAllStudent();
+       StudentDTO getStudentById(Long studentId);
+
+       List<StudentDTO> getAllStudents();
 
        Student updateStudent(StudentDTO student);
 
        void deleteStudent(Long studentId);
 
-       String findClassNameByEmail(String email);
+       String findClassNameByStudentId(Long studentId);
 }
