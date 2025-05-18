@@ -34,6 +34,10 @@ public class StudentService implements IStudentService {
 
     @Override
     public void addStudent(StudentDTO studentDTO) {
+        if (studentRepository.findByEmail(studentDTO.getEmail()) != null ){
+            throw new IllegalArgumentException("Email-ul este deja utilizat.");
+        }
+
         if(calculateAge(studentDTO.getBirthdate()) < 7 || calculateAge(studentDTO.getBirthdate()) > 12){
             throw new IllegalArgumentException("Varsta elevului trebuie sa fie intre 7 i 12 ani.");
         }
