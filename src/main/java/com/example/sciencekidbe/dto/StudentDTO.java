@@ -17,5 +17,5 @@ public class StudentDTO {
     private String email;
     private LocalDate birthdate;
     private LocalDate joinDate;
-    private String className;
+    private Long classEntityId;
 }

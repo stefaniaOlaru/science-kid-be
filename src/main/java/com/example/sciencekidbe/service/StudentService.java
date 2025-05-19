@@ -15,6 +15,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -32,7 +33,7 @@ public class StudentService implements IStudentService {
     }
 
     @Override
-    public Student addStudent(StudentDTO studentDTO) {
+    public void addStudent(StudentDTO studentDTO) {
         if (studentRepository.findByEmail(studentDTO.getEmail()) != null ){
             throw new IllegalArgumentException("Email-ul este deja utilizat.");
         }
@@ -45,7 +46,7 @@ public class StudentService implements IStudentService {
             throw new IllegalArgumentException("Email-ul nu corespunde formatului.");
         }
 
-        ClassEntity classEntity = classEntityRepository.findByClassName(studentDTO.getClassName());
+        ClassEntity classEntity = classEntityRepository.findById(studentDTO.getClassEntityId()).orElse(null);
 
         if (classEntity == null){
             throw new IllegalArgumentException("Clasa specificata nu exista.");
@@ -64,7 +65,19 @@ public class StudentService implements IStudentService {
         student.setFullName(studentDTO.getFullName());
         student.setJoinDate(LocalDate.now());
 
-        return studentRepository.save(student);
+        studentRepository.save(student);
+    }
+
+    @Override
+    public StudentDTO getStudentById(Long studentId) {
+        Student student = studentRepository.findById(studentId).orElse(null);
+
+        if (student == null)
+        {
+            throw new IllegalArgumentException("Studentul cu acest id nu a fost gasit");
+        }
+
+        return convertToDTO(student);
     }
 
     private StudentDTO convertToDTO(Student student){
@@ -74,18 +87,18 @@ public class StudentService implements IStudentService {
                 student.getEmail(),
                 student.getBirthdate(),
                 student.getJoinDate(),
-                student.getClassEntity().getClassName()
+                student.getClassEntity().getClassId()
         );
     }
 
-    public String findClassNameByEmail(String email){
-        Student student = studentRepository.findByEmail(email);
+    public String findClassNameByStudentId(Long studentId){
+        Optional<Student> student = studentRepository.findById(studentId);
 
-        if(student == null){
+        if(student.isEmpty()){
             throw new IllegalArgumentException("Studentul cu acest email nu a fost gasit");
         }
 
-        ClassEntity classEntity = student.getClassEntity();
+        ClassEntity classEntity = student.get().getClassEntity();
         if(classEntity == null){
             throw new IllegalArgumentException("Studentul nu apartine unei clase");
         }
@@ -95,17 +108,14 @@ public class StudentService implements IStudentService {
 
 
     @Override
-    public List<StudentDTO> getAllStudent() {
+    public List<StudentDTO> getAllStudents() {
         List<Student> students = studentRepository.findAll();
 
-        if (students.isEmpty()){
-            throw new IllegalArgumentException("Nu exista elevi inregistrati");
-        }
         return students.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
-    public List<ManualDTO> getManualForStudent(String className){
-        ClassEntity classEntity = classEntityRepository.findByClassName(className);
+    public List<ManualDTO> getManualForStudent(Long classId){
+        ClassEntity classEntity = classEntityRepository.findById(classId).orElse(null);
 
         if(classEntity == null || classEntity.getManuals() == null){
             throw new IllegalArgumentException("Nu s-au gasit manuale pentru clasa specificata");
@@ -128,7 +138,11 @@ public class StudentService implements IStudentService {
         Student student = studentRepository.findById(updatedStudent.getStudentId())
                 .orElseThrow(() -> new IllegalArgumentException("Studentul cu id-ul specificat nu exista"));
 
-        ClassEntity classEntity = classEntityRepository.findByClassName(updatedStudent.getClassName());
+        ClassEntity classEntity = classEntityRepository.findById(updatedStudent.getClassEntityId()).orElse(null);
+
+        if (classEntity == null){
+            throw new IllegalArgumentException("Clasa cu id-ul specificat nu exista");
+        }
 
         student.setBirthdate(updatedStudent.getBirthdate());
         student.setEmail(updatedStudent.getEmail());
