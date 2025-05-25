@@ -1,6 +1,7 @@
 package com.example.sciencekidbe.controller;
 
 import com.example.sciencekidbe.dto.ClassSummaryDTO;
+import com.example.sciencekidbe.dto.StudentDTO;
 import com.example.sciencekidbe.dto.TeacherDTO;
 import com.example.sciencekidbe.model.Teacher;
 import com.example.sciencekidbe.service.TeacherService;
@@ -33,8 +34,8 @@ public class TeacherController {
     @PostMapping("/add")
     public ResponseEntity<?> addTeacher(@RequestBody TeacherDTO teacherDTO) {
         try {
-            Teacher teacher = teacherService.addTeacher(teacherDTO);
-            return ResponseEntity.ok(teacher);
+             teacherService.addTeacher(teacherDTO);
+            return ResponseEntity.ok(HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
@@ -57,8 +58,8 @@ public class TeacherController {
     @PutMapping("/update/{teacherId}")
     public ResponseEntity<?> updateTeacher(@PathVariable Long teacherId, @RequestBody TeacherDTO teacherDTO) {
         try {
-            Teacher teacher = teacherService.updateTeacher(teacherId, teacherDTO);
-            return ResponseEntity.ok(teacher);
+            teacherService.updateTeacher(teacherId, teacherDTO);
+            return ResponseEntity.ok(HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
@@ -89,6 +90,17 @@ public class TeacherController {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Eroare la preluarea claselor profesorului.");
+        }
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<TeacherDTO>> filterStudents(@RequestParam(required = false) String email,
+                                                           @RequestParam(required = false) String name){
+        try{
+            List<TeacherDTO> filteredTechers = teacherService.filterTeachers(email, name);
+            return ResponseEntity.ok(filteredTechers);
+        } catch (IllegalArgumentException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 

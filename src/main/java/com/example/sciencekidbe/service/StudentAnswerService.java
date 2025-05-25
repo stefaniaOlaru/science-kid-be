@@ -7,6 +7,7 @@ import com.example.sciencekidbe.model.StudentAnswer;
 import com.example.sciencekidbe.repository.ExerciseRepository;
 import com.example.sciencekidbe.repository.StudentAnswerRepository;
 import com.example.sciencekidbe.repository.StudentRepository;
+import com.example.sciencekidbe.service.interfaces.IStudentAnswerService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class StudentAnswerService {
+public class StudentAnswerService implements IStudentAnswerService {
     private final StudentAnswerRepository studentAnswerRepository;
     private final ExerciseRepository exerciseRepository;
     private final StudentRepository studentRepository;
@@ -64,7 +65,7 @@ public class StudentAnswerService {
         Exercise exercise = exerciseRepository.findById(exerciseId)
                 .orElseThrow(() -> new IllegalArgumentException("Exercițiul nu există."));
 
-        // Validare: aparține de aplicația cerută
+
         if (!exercise.getApplication().getApplicationId().equals(applicationId)) {
             throw new IllegalArgumentException("Exercițiul nu aparține aplicației specificate.");
         }

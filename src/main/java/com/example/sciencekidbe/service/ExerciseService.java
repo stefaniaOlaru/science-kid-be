@@ -2,16 +2,15 @@ package com.example.sciencekidbe.service;
 
 import com.example.sciencekidbe.dto.ExerciseDTO;
 import com.example.sciencekidbe.model.Exercise;
-import com.example.sciencekidbe.repository.ApplicationRepository;
 import com.example.sciencekidbe.repository.ExerciseRepository;
-import com.example.sciencekidbe.repository.StudentAnswerRepository;
+import com.example.sciencekidbe.service.interfaces.IExerciseService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class ExerciseService {
+public class ExerciseService implements IExerciseService {
     private final ExerciseRepository exerciseRepository;
 
     public ExerciseService(ExerciseRepository exerciseRepository){
@@ -25,6 +24,7 @@ public class ExerciseService {
                 exercise.getCorrectAnswer()
         );
     }
+
     public List<ExerciseDTO> getExercisesByApplication(Long applicationId) {
         List<Exercise> exercises = exerciseRepository.findByApplication_ApplicationId(applicationId);
 

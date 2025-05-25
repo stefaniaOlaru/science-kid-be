@@ -32,14 +32,4 @@ public class UnitController {
         }
     }
 
-    //daca o sa fie folosit ne trebuie unitDTO
-    @GetMapping("/{unitId}")
-    public ResponseEntity<Unit> getUnitById(@PathVariable Long unitId){
-        try{
-            Unit unit = unitService.getUnitById(unitId);
-            return new ResponseEntity<>(unit,HttpStatus.OK);
-        } catch(IllegalArgumentException e){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
 }

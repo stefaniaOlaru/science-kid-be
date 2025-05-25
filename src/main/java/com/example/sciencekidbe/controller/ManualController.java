@@ -23,11 +23,11 @@ public class ManualController {
         this.manualService= manualService;
     }
 
-    @PostMapping("/update")
-    public ResponseEntity<Manual> updateManual(@RequestBody ManualDTO manualDTO){
+    @PutMapping("/update")
+    public ResponseEntity<?> updateManual(@RequestBody ManualDTO manualDTO){
         try{
-            Manual updateManual = manualService.updateManual(manualDTO);
-            return ResponseEntity.ok(updateManual);
+            manualService.updateManual(manualDTO);
+            return ResponseEntity.ok(HttpStatus.CREATED);
         } catch (IllegalArgumentException e){
             return ResponseEntity.badRequest().body(null);
         }

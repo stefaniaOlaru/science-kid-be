@@ -4,13 +4,15 @@ import com.example.sciencekidbe.dto.*;
 import com.example.sciencekidbe.model.*;
 import com.example.sciencekidbe.repository.ClassEntityRepository;
 import com.example.sciencekidbe.repository.UnitRepository;
+import com.example.sciencekidbe.service.interfaces.IClassEntityService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class ClassEntityService {
+public class ClassEntityService implements IClassEntityService {
 
     private final ClassEntityRepository classEntityRepository;
     private final UnitRepository unitRepository;
@@ -20,16 +22,20 @@ public class ClassEntityService {
         this.unitRepository = unitRepository;
     }
 
-    public List<String> getAllClassNames(){
+    public List<ClassSummaryDTO> getAllClasses(){
         return classEntityRepository
                 .findAll()
                 .stream()
-                .map(ClassEntity::getClassName)
+                .map( classEntity ->  new ClassSummaryDTO(
+                        classEntity.getClassId(),
+                        classEntity.getClassName(),
+                        classEntity.getGradeLevel()
+                ))
                 .collect(Collectors.toList());
     }
 
-    public ClassEntity getClassDetailsByName(String className){
-        return classEntityRepository.findByClassName(className);
+    public Optional<ClassEntity> getClassDetailsByClassId(Long classId){
+        return classEntityRepository.findById(classId);
     }
 
     public ClassEntityDTO convertToClassEntityDTO(ClassEntity classEntity){
@@ -41,6 +47,7 @@ public class ClassEntityService {
                         student.getEmail(),
                         student.getBirthdate(),
                         student.getJoinDate(),
+                        student.getClassEntity().getClassName(),
                         student.getClassEntity().getClassId()
                 ))
                 .collect(Collectors.toList());

@@ -48,7 +48,8 @@ public class InformationController{
     @DeleteMapping("/remove-content/{contentId}")
     public ResponseEntity<?> removeContent(@PathVariable Long contentId) {
         try {
-            return ResponseEntity.ok(informationService.removeContent(contentId));
+            informationService.deleteContent(contentId);
+            return ResponseEntity.ok("Contentul a fost șters cu succes.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
@@ -56,14 +57,4 @@ public class InformationController{
         }
     }
 
-    //daca e sa folosim acest api trebuie safacem un informationDTO pt afisare
-    @GetMapping("/{informationId}")
-    public ResponseEntity<Information> getInformtionById(@PathVariable Long informationId){
-        try{
-            Information information = informationService.getInformationById(informationId);
-            return new ResponseEntity<>(information,HttpStatus.OK);
-        } catch(IllegalArgumentException e){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
 }

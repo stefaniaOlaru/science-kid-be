@@ -1,21 +1,23 @@
 package com.example.sciencekidbe.service;
 
 import com.example.sciencekidbe.dto.ClassSummaryDTO;
+import com.example.sciencekidbe.dto.StudentDTO;
 import com.example.sciencekidbe.dto.TeacherDTO;
 import com.example.sciencekidbe.model.ClassEntity;
+import com.example.sciencekidbe.model.Student;
 import com.example.sciencekidbe.model.Teacher;
 import com.example.sciencekidbe.repository.ClassEntityRepository;
 import com.example.sciencekidbe.repository.TeacherRepository;
+import com.example.sciencekidbe.service.interfaces.ITeacherService;
 import org.springframework.beans.factory.support.InstanceSupplier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class TeacherService {
+public class TeacherService implements ITeacherService {
 
     private final TeacherRepository teacherRepository;
     private final ClassEntityRepository classEntityRepository;
@@ -30,13 +32,19 @@ public class TeacherService {
                 .map(ClassEntity::getClassName)
                 .collect(Collectors.toList());
 
+        List<Long> classIds = teacher.getClassEntities()
+                .stream()
+                .map(ClassEntity::getClassId)
+                .collect(Collectors.toList());
+
         return new TeacherDTO(
                 teacher.getTeacherId(),
                 teacher.getFullName(),
                 teacher.getEmail(),
                 teacher.getSubject(),
                 teacher.getPhoneNumber(),
-                classNames
+                classNames,
+                classIds
         );
     }
 
@@ -50,18 +58,16 @@ public class TeacherService {
         return teachers.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
-    public Teacher addTeacher(TeacherDTO teacherDTO) {
+    public void addTeacher(TeacherDTO teacherDTO) {
       List<ClassEntity> classEntities = new ArrayList<>();
+      validateEmail(teacherDTO.getEmail());
+      validatePhoneNumber(teacherDTO.getPhoneNumber());
 
-      for(String className: teacherDTO.getClassNames()){
-          ClassEntity classEntity = classEntityRepository.findByClassName(className);
-
-          if (classEntity != null) {
-              classEntities.add(classEntity);
-          } else {
-              throw new IllegalArgumentException("Clasa " + className + " nu a fost găsită.");
-          }
-      }
+        for (Long classId : teacherDTO.getClassEntityIds()) {
+            ClassEntity classEntity = classEntityRepository.findById(classId)
+                    .orElseThrow(() -> new IllegalArgumentException("Clasa cu ID-ul " + classId + " nu a fost găsită."));
+            classEntities.add(classEntity);
+        }
 
         Teacher teacher = new Teacher();
         teacher.setFullName(teacherDTO.getFullName());
@@ -70,7 +76,7 @@ public class TeacherService {
         teacher.setPhoneNumber(teacherDTO.getPhoneNumber());
         teacher.setClassEntities(classEntities);
 
-        return teacherRepository.save(teacher);
+        teacherRepository.save(teacher);
     }
 
     public void deleteTeacher(Long teacherId) {
@@ -84,10 +90,16 @@ public class TeacherService {
         Teacher teacher = teacherRepository.findById(teacherId)
                 .orElseThrow(() -> new IllegalArgumentException("Profesorul nu există!"));
 
-        List<ClassEntity> classEntities = updatedTeacherDTO.getClassNames().stream()
-                .map(classEntityRepository::findByClassName)
-                .filter(classEntity -> classEntity != null)
-                .collect(Collectors.toList());
+        validateEmail(updatedTeacherDTO.getEmail());
+        validatePhoneNumber(updatedTeacherDTO.getPhoneNumber());
+
+        List<ClassEntity> classEntities = new ArrayList<>();
+
+        for (Long classId : updatedTeacherDTO.getClassEntityIds()) {
+            ClassEntity classEntity = classEntityRepository.findById(classId)
+                    .orElseThrow(() -> new IllegalArgumentException("Clasa cu ID-ul " + classId + " nu a fost găsită."));
+            classEntities.add(classEntity);
+        }
 
         teacher.setFullName(updatedTeacherDTO.getFullName());
         teacher.setEmail(updatedTeacherDTO.getEmail());
@@ -114,4 +126,58 @@ public class TeacherService {
                         classEntity.getGradeLevel()
                 )).collect(Collectors.toList());
     }
+
+    private void validateEmail(String email) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+        if (email == null || !email.matches(emailRegex)) {
+            throw new IllegalArgumentException("Emailul introdus nu este valid.");
+        }
+    }
+
+    private void validatePhoneNumber(String phoneNumber) {
+        String phoneRegex = "^0\\d{9}$"; // începe cu 0 și urmat de 9 cifre
+        if (phoneNumber == null || !phoneNumber.matches(phoneRegex)) {
+            throw new IllegalArgumentException("Numărul de telefon trebuie să aibă exact 10 cifre și să înceapă cu 0.");
+        }
+    }
+
+    public List<TeacherDTO> filterTeachers(String email, String fullName) {
+        List<Teacher> teachers;
+
+        if (email != null && fullName != null) {
+            String loweredEmail = email.toLowerCase();
+            String loweredName = fullName.toLowerCase();
+
+            teachers = teacherRepository.findAll().stream()
+                    .filter(teacher -> teacher.getFullName() != null &&
+                            teacher.getFullName().toLowerCase().contains(loweredName))
+                    .filter(teacher -> teacher.getEmail() != null &&
+                            teacher.getEmail().toLowerCase().contains(loweredEmail))
+                    .collect(Collectors.toList());
+
+        } else if (email != null) {
+            String loweredEmail = email.toLowerCase();
+
+            teachers = teacherRepository.findAll().stream()
+                    .filter(teacher -> teacher.getEmail() != null &&
+                            teacher.getEmail().toLowerCase().contains(loweredEmail))
+                    .collect(Collectors.toList());
+
+        } else if (fullName != null) {
+            String loweredName = fullName.toLowerCase();
+
+            teachers = teacherRepository.findAll().stream()
+                    .filter(teacher -> teacher.getFullName() != null &&
+                            teacher.getFullName().toLowerCase().contains(loweredName))
+                    .collect(Collectors.toList());
+
+        } else {
+            teachers = teacherRepository.findAll();
+        }
+
+        return teachers.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
 }

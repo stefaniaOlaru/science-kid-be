@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -39,4 +40,8 @@ public class Student {
     @JoinColumn(name = "class_id", nullable = false)
     @JsonManagedReference
     private ClassEntity classEntity;
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StudentAnswer> answers;
+
 }

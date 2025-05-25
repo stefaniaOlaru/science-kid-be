@@ -37,7 +37,7 @@ public class ApplicationController {
         }
     }
 
-    @PutMapping("/update-exercise/{exerciseId}")
+    @PutMapping("/modify-exercise/{exerciseId}")
     public ResponseEntity<?> updateExercise(@PathVariable Long exerciseId,
                                             @RequestBody ExerciseRequest request) {
         try {
@@ -50,7 +50,7 @@ public class ApplicationController {
         }
     }
 
-    @DeleteMapping("/delete-exercise/{exerciseId}")
+    @DeleteMapping("/remove-exercise/{exerciseId}")
     public ResponseEntity<?> deleteExercise(@PathVariable Long exerciseId) {
         try {
             applicationService.deleteExercise(exerciseId);

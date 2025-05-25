@@ -3,13 +3,14 @@ package com.example.sciencekidbe.service;
 import com.example.sciencekidbe.dto.ContentDTO;
 import com.example.sciencekidbe.model.Content;
 import com.example.sciencekidbe.repository.ContentRepository;
+import com.example.sciencekidbe.service.interfaces.IContentService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class ContentService {
+public class ContentService implements IContentService {
     private final ContentRepository contentRepository;
 
     public ContentService(ContentRepository contentRepository){

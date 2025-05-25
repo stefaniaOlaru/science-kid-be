@@ -4,17 +4,15 @@ import com.example.sciencekidbe.dto.ExerciseDTO;
 import com.example.sciencekidbe.dto.ExerciseRequest;
 import com.example.sciencekidbe.model.Application;
 import com.example.sciencekidbe.model.Exercise;
-import com.example.sciencekidbe.model.Observation;
 import com.example.sciencekidbe.repository.ApplicationRepository;
 import com.example.sciencekidbe.repository.ExerciseRepository;
-import com.example.sciencekidbe.repository.ObservationRepository;
-import com.example.sciencekidbe.repository.StudentAnswerRepository;
+import com.example.sciencekidbe.service.interfaces.IApplicationService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class ApplicationService {
+public class ApplicationService implements IApplicationService {
 
     private final ApplicationRepository applicationRepository;
     private final ExerciseRepository exerciseRepository;
@@ -23,13 +21,6 @@ public class ApplicationService {
                               ExerciseRepository exerciseRepository){
         this.applicationRepository = applicationRepository;
         this.exerciseRepository = exerciseRepository;
-    }
-
-    public Application getApplicationById(Long applicationId){
-        Application application = applicationRepository.findById(applicationId)
-                .orElseThrow(() ->  new IllegalArgumentException("Aplicatia nu a fost gasita"));
-
-        return application;
     }
 
     public Exercise addExercise(ExerciseRequest request) {

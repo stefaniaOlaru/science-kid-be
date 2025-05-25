@@ -21,6 +21,7 @@ public class TeacherDTO {
     private String subject;
     private String phoneNumber;
     private List<String> classNames;
+    private List<Long> classEntityIds;
 
     public TeacherDTO(Long teacherId, String fullName, String email, String subject, String phoneNumber){
         this.teacherId = teacherId;

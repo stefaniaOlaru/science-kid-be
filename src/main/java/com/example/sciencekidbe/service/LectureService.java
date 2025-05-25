@@ -1,16 +1,16 @@
 package com.example.sciencekidbe.service;
 
 import com.example.sciencekidbe.dto.LectureDTO;
-import com.example.sciencekidbe.dto.LectureDetailsDTO;
 import com.example.sciencekidbe.model.Lecture;
 import com.example.sciencekidbe.repository.LectureRepository;
+import com.example.sciencekidbe.service.interfaces.ILectureService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class LectureService {
+public class LectureService implements ILectureService {
     private final LectureRepository lectureRepository;
 
     public LectureService(LectureRepository lectureRepository) {

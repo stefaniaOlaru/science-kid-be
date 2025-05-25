@@ -1,20 +1,21 @@
 package com.example.sciencekidbe.service;
 
 import com.example.sciencekidbe.dto.ManualDTO;
-import com.example.sciencekidbe.dto.StudentDTO;
 import com.example.sciencekidbe.model.ClassEntity;
 import com.example.sciencekidbe.model.Manual;
-import com.example.sciencekidbe.model.Student;
 import com.example.sciencekidbe.repository.ClassEntityRepository;
 import com.example.sciencekidbe.repository.ManualRepository;
+import com.example.sciencekidbe.service.interfaces.IManualService;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class ManualService {
+public class ManualService implements IManualService {
 
     private final ManualRepository manualRepository;
     private final ClassEntityRepository classEntityRepository;
@@ -25,13 +26,12 @@ public class ManualService {
     }
 
     public Manual addManual(ManualDTO manualDTO){
-        List<ClassEntity> classEntities = manualDTO.getClassNames().stream()
-                .map(classEntityRepository::findByClassName)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+        List<ClassEntity> classEntities = new ArrayList<>();
 
-        if (classEntities.isEmpty()){
-            throw new IllegalArgumentException("No valid classes found for the provided namesd.");
+        for (Long classId : manualDTO.getClassEntityIds()) {
+            ClassEntity classEntity = classEntityRepository.findById(classId)
+                    .orElseThrow(() -> new IllegalArgumentException("Clasa cu ID-ul " + classId + " nu a fost găsită."));
+            classEntities.add(classEntity);
         }
 
         Manual manual = new Manual();
@@ -43,13 +43,21 @@ public class ManualService {
     }
 
     private ManualDTO convertToDTO(Manual manual){
+        List<String> classNames = manual.getClassEntities().stream()
+                .map(ClassEntity::getClassName)
+                .collect(Collectors.toList());
+
+        List<Long> classIds = manual.getClassEntities()
+                .stream()
+                .map(ClassEntity::getClassId)
+                .collect(Collectors.toList());
+
         return new ManualDTO(
                 manual.getManualId(),
                 manual.getManualName(),
                 manual.getPublisher(),
-                manual.getClassEntities().stream()
-                        .map(ClassEntity::getClassName)
-                        .collect(Collectors.toList())
+                classNames,
+                classIds
         );
     }
 
@@ -76,9 +84,10 @@ public class ManualService {
 
         List<ClassEntity> currentClassEntities = existingManual.getClassEntities();
 
-        List<ClassEntity> updatedClassEntities = manualDTO.getClassNames().stream()
-                .map(classEntityRepository::findByClassName)
-                .filter(Objects::nonNull)
+        List<ClassEntity> updatedClassEntities = manualDTO.getClassEntityIds().stream()
+                .map(classEntityRepository::findById)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .toList();
 
         List<ClassEntity> classesToAdd = updatedClassEntities.stream()

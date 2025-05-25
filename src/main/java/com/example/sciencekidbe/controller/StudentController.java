@@ -27,8 +27,9 @@ public class StudentController {
     @PostMapping("/add")
     public ResponseEntity<?> addStudent(@RequestBody StudentDTO studentDTO){
         try{
-            studentService.addStudent(studentDTO);
-            return new ResponseEntity<>(HttpStatus.CREATED);
+           Student newStudent = studentService.addStudent(studentDTO);
+            StudentDTO dto = studentService.convertToDTO(newStudent);
+            return new ResponseEntity<>(dto, HttpStatus.CREATED);
         }catch (IllegalArgumentException e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -63,10 +64,10 @@ public class StudentController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Student> updateStudent(@RequestBody StudentDTO updatedStudent){
+    public ResponseEntity<?> updateStudent(@RequestBody StudentDTO updatedStudent){
         try{
-            Student student = studentService.updateStudent(updatedStudent);
-            return new ResponseEntity<>(student, HttpStatus.OK);
+            studentService.updateStudent(updatedStudent);
+            return ResponseEntity.ok(HttpStatus.CREATED);
         } catch (IllegalArgumentException e){
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
@@ -81,6 +82,16 @@ public class StudentController {
         } catch (IllegalArgumentException e){
             return new ResponseEntity<>(Collections.emptyList(), HttpStatus.BAD_REQUEST);
         }
+    }
 
+    @GetMapping("/filter")
+    public ResponseEntity<List<StudentDTO>> filterStudents( @RequestParam(required = false) String email,
+                                                            @RequestParam(required = false) String name){
+        try{
+            List<StudentDTO> filteredStudents = studentService.filterStudents(email, name);
+            return ResponseEntity.ok(filteredStudents);
+        } catch (IllegalArgumentException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }

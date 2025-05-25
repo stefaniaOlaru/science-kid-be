@@ -3,7 +3,6 @@ package com.example.sciencekidbe.service;
 import com.example.sciencekidbe.dto.ManualDTO;
 import com.example.sciencekidbe.dto.StudentDTO;
 import com.example.sciencekidbe.model.ClassEntity;
-import com.example.sciencekidbe.model.Manual;
 import com.example.sciencekidbe.model.Student;
 import com.example.sciencekidbe.repository.ClassEntityRepository;
 import com.example.sciencekidbe.repository.StudentRepository;
@@ -11,11 +10,10 @@ import com.example.sciencekidbe.service.interfaces.IStudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.Clock;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -27,32 +25,32 @@ public class StudentService implements IStudentService {
     private final ClassEntityRepository classEntityRepository;
 
     @Autowired
-    public StudentService(StudentRepository studentRepository, ClassEntityRepository classEntityRepository){
+    public StudentService(StudentRepository studentRepository, ClassEntityRepository classEntityRepository) {
         this.studentRepository = studentRepository;
         this.classEntityRepository = classEntityRepository;
     }
 
     @Override
-    public void addStudent(StudentDTO studentDTO) {
-        if (studentRepository.findByEmail(studentDTO.getEmail()) != null ){
+    public Student addStudent(StudentDTO studentDTO) {
+        if (studentRepository.findByEmail(studentDTO.getEmail()) != null) {
             throw new IllegalArgumentException("Email-ul este deja utilizat.");
         }
 
-        if(calculateAge(studentDTO.getBirthdate()) < 7 || calculateAge(studentDTO.getBirthdate()) > 12){
+        if (calculateAge(studentDTO.getBirthdate()) < 7 || calculateAge(studentDTO.getBirthdate()) > 12) {
             throw new IllegalArgumentException("Varsta elevului trebuie sa fie intre 7 i 12 ani.");
         }
 
-        if (!isValidEmailFormat(studentDTO.getEmail())){
+        if (!isValidEmailFormat(studentDTO.getEmail())) {
             throw new IllegalArgumentException("Email-ul nu corespunde formatului.");
         }
 
         ClassEntity classEntity = classEntityRepository.findById(studentDTO.getClassEntityId()).orElse(null);
 
-        if (classEntity == null){
+        if (classEntity == null) {
             throw new IllegalArgumentException("Clasa specificata nu exista.");
         }
 
-        if (classEntity.getStudents().size() >= 30){
+        if (classEntity.getStudents().size() >= 30) {
             throw new IllegalArgumentException("The class " + classEntity.getClassName() + " is already full.");
         }
 
@@ -63,47 +61,32 @@ public class StudentService implements IStudentService {
         student.setEmail(studentDTO.getEmail());
         student.setClassEntity(classEntity);
         student.setFullName(studentDTO.getFullName());
-        student.setJoinDate(LocalDate.now());
+        student.setJoinDate(studentDTO.getJoinDate());
 
-        studentRepository.save(student);
+        return studentRepository.save(student);
     }
 
     @Override
     public StudentDTO getStudentById(Long studentId) {
         Student student = studentRepository.findById(studentId).orElse(null);
 
-        if (student == null)
-        {
+        if (student == null) {
             throw new IllegalArgumentException("Studentul cu acest id nu a fost gasit");
         }
 
         return convertToDTO(student);
     }
 
-    private StudentDTO convertToDTO(Student student){
+    public StudentDTO convertToDTO(Student student) {
         return new StudentDTO(
                 student.getStudentId(),
                 student.getFullName(),
                 student.getEmail(),
                 student.getBirthdate(),
                 student.getJoinDate(),
+                student.getClassEntity().getClassName(),
                 student.getClassEntity().getClassId()
         );
-    }
-
-    public String findClassNameByStudentId(Long studentId){
-        Optional<Student> student = studentRepository.findById(studentId);
-
-        if(student.isEmpty()){
-            throw new IllegalArgumentException("Studentul cu acest email nu a fost gasit");
-        }
-
-        ClassEntity classEntity = student.get().getClassEntity();
-        if(classEntity == null){
-            throw new IllegalArgumentException("Studentul nu apartine unei clase");
-        }
-
-        return classEntity.getClassName();
     }
 
 
@@ -114,23 +97,34 @@ public class StudentService implements IStudentService {
         return students.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
-    public List<ManualDTO> getManualForStudent(Long classId){
+    public List<ManualDTO> getManualForStudent(Long classId) {
         ClassEntity classEntity = classEntityRepository.findById(classId).orElse(null);
 
-        if(classEntity == null || classEntity.getManuals() == null){
+        if (classEntity == null || classEntity.getManuals() == null) {
             throw new IllegalArgumentException("Nu s-au gasit manuale pentru clasa specificata");
         }
 
         return classEntity.getManuals().stream()
-                .map(manual -> new ManualDTO(
-                        manual.getManualId(),
-                        manual.getManualName(),
-                        manual.getPublisher(),
-                        manual.getClassEntities().stream()
-                                .map(ClassEntity::getClassName)
-                                .collect(Collectors.toList())
-                ))
+                .map(manual -> {
+                    List<Long> ids = manual.getClassEntities().stream()
+                            .map(ClassEntity::getClassId)
+                            .collect(Collectors.toList());
+
+                    List<String> names = manual.getClassEntities().stream()
+                            .map(ClassEntity::getClassName)
+                            .collect(Collectors.toList());
+
+                    ManualDTO dto = new ManualDTO();
+                    dto.setManualId(manual.getManualId());
+                    dto.setManualName(manual.getManualName());
+                    dto.setPublisher(manual.getPublisher());
+                    dto.setClassEntityIds(ids);
+                    dto.setClassNames(names);
+
+                    return dto;
+                })
                 .collect(Collectors.toList());
+
     }
 
     @Override
@@ -140,7 +134,7 @@ public class StudentService implements IStudentService {
 
         ClassEntity classEntity = classEntityRepository.findById(updatedStudent.getClassEntityId()).orElse(null);
 
-        if (classEntity == null){
+        if (classEntity == null) {
             throw new IllegalArgumentException("Clasa cu id-ul specificat nu exista");
         }
 
@@ -160,11 +154,11 @@ public class StudentService implements IStudentService {
         studentRepository.delete(student);
     }
 
-    public int calculateAge(LocalDate birthdate){
+    public int calculateAge(LocalDate birthdate) {
         return Period.between(birthdate, LocalDate.now()).getYears();
     }
 
-    private boolean isValidEmailFormat(String email){
+    private boolean isValidEmailFormat(String email) {
         String emailRegex = "^[a-zA-Z]+\\.[A-Z]+\\.[a-zA-Z]+@elev\\.ro$";
         Pattern pattern = Pattern.compile(emailRegex);
         Matcher matcher = pattern.matcher(email);
@@ -172,4 +166,42 @@ public class StudentService implements IStudentService {
         return matcher.matches();
     }
 
+    public List<StudentDTO> filterStudents(String email, String fullName) {
+        List<Student> students;
+
+        if (email != null && fullName != null) {
+            String loweredEmail = email.toLowerCase();
+            String loweredName = fullName.toLowerCase();
+
+            students = studentRepository.findAll().stream()
+                    .filter(student -> student.getFullName() != null &&
+                            student.getFullName().toLowerCase().contains(loweredName))
+                    .filter(student -> student.getEmail() != null &&
+                            student.getEmail().toLowerCase().contains(loweredEmail))
+                    .collect(Collectors.toList());
+
+        } else if (email != null) {
+            String loweredEmail = email.toLowerCase();
+
+            students = studentRepository.findAll().stream()
+                    .filter(student -> student.getEmail() != null &&
+                            student.getEmail().toLowerCase().contains(loweredEmail))
+                    .collect(Collectors.toList());
+
+        } else if (fullName != null) {
+            String loweredName = fullName.toLowerCase();
+
+            students = studentRepository.findAll().stream()
+                    .filter(student -> student.getFullName() != null &&
+                            student.getFullName().toLowerCase().contains(loweredName))
+                    .collect(Collectors.toList());
+
+        } else {
+            students = studentRepository.findAll();
+        }
+
+        return students.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
 }

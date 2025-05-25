@@ -4,15 +4,14 @@ import com.example.sciencekidbe.dto.ContentDTO;
 import com.example.sciencekidbe.dto.ContentRequest;
 import com.example.sciencekidbe.model.Content;
 import com.example.sciencekidbe.model.Information;
-import com.example.sciencekidbe.model.Lecture;
 import com.example.sciencekidbe.repository.ContentRepository;
 import com.example.sciencekidbe.repository.InformationRepository;
+import com.example.sciencekidbe.service.interfaces.IInformationService;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
 @Service
-public class InformationService {
+public class InformationService implements IInformationService {
 
     private final InformationRepository informationRepository;
     private final ContentRepository contentRepository;
@@ -46,7 +45,7 @@ public class InformationService {
         return new ContentDTO(saved.getContentId(), saved.getText());
     }
 
-    public Information removeContent(Long contentId){
+    public void deleteContent(Long contentId){
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(() -> new IllegalArgumentException("Nu s-a gasit contentul"));
 
@@ -54,13 +53,6 @@ public class InformationService {
         information.getContents().remove(content);
         contentRepository.delete(content);
 
-        return information;
     }
 
-    public Information getInformationById(Long informationId){
-        Information information = informationRepository.findById(informationId)
-                .orElseThrow(() -> new IllegalArgumentException("Nu s-a gasit information"));
-
-        return information;
-    }
 }

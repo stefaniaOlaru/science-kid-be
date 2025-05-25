@@ -16,4 +16,5 @@ public class ManualDTO {
     private String manualName;
     private String publisher;
     private List<String> classNames;
+    private List<Long> classEntityIds;
 }
