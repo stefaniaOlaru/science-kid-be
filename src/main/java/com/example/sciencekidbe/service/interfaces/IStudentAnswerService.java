@@ -9,5 +9,5 @@ import java.util.List;
 public interface IStudentAnswerService {
     StudentAnswer saveStudentAnswer(Long studentId, Long exerciseId, String givenAnswer, LocalDateTime answeredAt);
 
-    List<StudentAnswerDTO> getAnswersByExerciseAndApplication(Long exerciseId, Long applicationId);
+    List<StudentAnswerDTO> getAnswersByExerciseAndApplication(Long exerciseId, Long applicationId, Long classEntityId);
 }

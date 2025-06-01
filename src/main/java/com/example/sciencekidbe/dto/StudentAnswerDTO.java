@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class StudentAnswerDTO {
     private Long answerId;
     private String givenAnswer;
-    private boolean isCorrect;
+    private boolean correct;
     private LocalDateTime answeredAt;
     private Long exerciseId;
     private String studentName;

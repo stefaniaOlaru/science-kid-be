@@ -37,7 +37,7 @@ public class StudentService implements IStudentService {
         }
 
         if (calculateAge(studentDTO.getBirthdate()) < 7 || calculateAge(studentDTO.getBirthdate()) > 12) {
-            throw new IllegalArgumentException("Varsta elevului trebuie sa fie intre 7 i 12 ani.");
+            throw new IllegalArgumentException("Varsta elevului trebuie sa fie intre 7 si 12 ani.");
         }
 
         if (!isValidEmailFormat(studentDTO.getEmail())) {

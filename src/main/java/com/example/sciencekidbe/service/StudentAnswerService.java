@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,6 +41,12 @@ public class StudentAnswerService implements IStudentAnswerService {
             throw new IllegalArgumentException("Răspunsul trebuie să fie dat în timpul orei de curs (60 minute)!");
         }
 
+        Optional<StudentAnswer> studentAnswerExists = studentAnswerRepository.findByStudent_StudentIdAndExercise_ExerciseId(studentId, exerciseId);
+
+        if (studentAnswerExists.isPresent()){
+            throw new IllegalArgumentException("S-a raspuns deja la acest exercitiu");
+        }
+
         StudentAnswer studentAnswer = new StudentAnswer();
         studentAnswer.setStudent(student);
         studentAnswer.setExercise(exercise);
@@ -61,7 +68,7 @@ public class StudentAnswerService implements IStudentAnswerService {
         );
     }
 
-    public List<StudentAnswerDTO> getAnswersByExerciseAndApplication(Long exerciseId, Long applicationId) {
+    public List<StudentAnswerDTO> getAnswersByExerciseAndApplication(Long exerciseId, Long applicationId, Long classEntityId) {
         Exercise exercise = exerciseRepository.findById(exerciseId)
                 .orElseThrow(() -> new IllegalArgumentException("Exercițiul nu există."));
 
@@ -71,6 +78,10 @@ public class StudentAnswerService implements IStudentAnswerService {
         }
 
         List<StudentAnswer> answers = studentAnswerRepository.findByExercise_ExerciseId(exerciseId);
-        return answers.stream().map(this::convertToDTO).collect(Collectors.toList());
+
+        List<StudentAnswer> filtered = answers.stream()
+                .filter(ans -> ans.getStudent().getClassEntity().getClassId().equals(classEntityId))
+                .toList();
+        return filtered.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 }

@@ -32,12 +32,13 @@ public class StudentAnswerController {
         }
     }
 
-    @GetMapping("/exercise/{exerciseId}/application/{applicationId}/answers")
+    @GetMapping("/exercise/{exerciseId}/application/{applicationId}/answers/class/{classEntityId}")
     public ResponseEntity<?> getAnswersByExerciseAndApplication(
             @PathVariable Long exerciseId,
-            @PathVariable Long applicationId) {
+            @PathVariable Long applicationId,
+            @PathVariable Long classEntityId) {
         try {
-            return ResponseEntity.ok(studentAnswerService.getAnswersByExerciseAndApplication(exerciseId, applicationId));
+            return ResponseEntity.ok(studentAnswerService.getAnswersByExerciseAndApplication(exerciseId, applicationId, classEntityId));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
