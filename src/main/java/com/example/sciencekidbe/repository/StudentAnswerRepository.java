@@ -12,4 +12,6 @@ public interface StudentAnswerRepository extends JpaRepository<StudentAnswer, Lo
 
     List<StudentAnswer> findByExercise_ExerciseId(Long exerciseId);
     Optional<StudentAnswer> findByStudent_StudentIdAndExercise_ExerciseId(Long studentId, Long exerciseId);
+    List<StudentAnswer> findByExercise_ExerciseIdAndStudent_ClassEntity_ClassId(Long exerciseId, Long classId);
+
 }

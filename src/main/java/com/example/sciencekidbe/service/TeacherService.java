@@ -58,25 +58,10 @@ public class TeacherService implements ITeacherService {
         return teachers.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
-    public void addTeacher(TeacherDTO teacherDTO) {
-      List<ClassEntity> classEntities = new ArrayList<>();
-      validateEmail(teacherDTO.getEmail());
-      validatePhoneNumber(teacherDTO.getPhoneNumber());
-
-        for (Long classId : teacherDTO.getClassEntityIds()) {
-            ClassEntity classEntity = classEntityRepository.findById(classId)
-                    .orElseThrow(() -> new IllegalArgumentException("Clasa cu ID-ul " + classId + " nu a fost găsită."));
-            classEntities.add(classEntity);
-        }
-
-        Teacher teacher = new Teacher();
-        teacher.setFullName(teacherDTO.getFullName());
-        teacher.setEmail(teacherDTO.getEmail());
-        teacher.setSubject(teacherDTO.getSubject());
-        teacher.setPhoneNumber(teacherDTO.getPhoneNumber());
-        teacher.setClassEntities(classEntities);
-
-        teacherRepository.save(teacher);
+    public TeacherDTO getTeacherById(Long teacherId) {
+        Teacher teacher = teacherRepository.findById(teacherId)
+                .orElseThrow(() -> new IllegalArgumentException("Profesorul cu ID-ul " + teacherId + " nu există."));
+        return convertToDTO(teacher);
     }
 
     public void deleteTeacher(Long teacherId) {

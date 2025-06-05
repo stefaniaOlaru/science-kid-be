@@ -8,9 +8,6 @@ import java.util.List;
 
 public interface ITeacherService {
     List<TeacherDTO> getAllTeacher();
-
-    void addTeacher(TeacherDTO teacherDTO);
-
     void deleteTeacher(Long teacherId);
 
     Teacher updateTeacher(Long teacherId, TeacherDTO updatedTeacherDTO);

@@ -11,8 +11,7 @@ import com.example.sciencekidbe.service.interfaces.IStudentAnswerService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -84,4 +83,55 @@ public class StudentAnswerService implements IStudentAnswerService {
                 .toList();
         return filtered.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
+
+    public Map<String, Long> getAnswerStats(Long exerciseId, Long applicationId, Long classId) {
+        Exercise exercise = exerciseRepository.findById(exerciseId)
+                .orElseThrow(() -> new IllegalArgumentException("Exercițiul nu există!"));
+
+        if (!exercise.getApplication().getApplicationId().equals(applicationId)) {
+            throw new IllegalArgumentException("Exercițiul nu aparține aplicației specificate!");
+        }
+
+        List<Student> allStudents = studentRepository.findByClassEntity_ClassId(classId);
+        List<StudentAnswer> answers = studentAnswerRepository
+                .findByExercise_ExerciseIdAndStudent_ClassEntity_ClassId(exerciseId, classId);
+
+        Set<Long> answeredStudentIds = answers.stream()
+                .map(ans -> ans.getStudent().getStudentId())
+                .collect(Collectors.toSet());
+
+        long correct = answers.stream().filter(StudentAnswer::isCorrect).count();
+        long incorrect = answers.size() - correct;
+        long absent = allStudents.stream()
+                .filter(student -> !answeredStudentIds.contains(student.getStudentId()))
+                .count();
+
+        return Map.of(
+                "correct", correct,
+                "incorrect", incorrect,
+                "absent", absent
+        );
+    }
+
+    public List<Map<String, Object>> getIncorrectCountsByExercise(Long applicationId, Long classId) {
+        List<Exercise> exercises = exerciseRepository.findByApplication_ApplicationId(applicationId);
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        for (Exercise ex : exercises) {
+            List<StudentAnswer> answers = studentAnswerRepository
+                    .findByExercise_ExerciseIdAndStudent_ClassEntity_ClassId(ex.getExerciseId(), classId);
+
+            long incorrect = answers.stream().filter(a -> !a.isCorrect()).count();
+
+            result.add(Map.of(
+                    "exerciseId", ex.getExerciseId(),
+                    "question", ex.getQuestion(),
+                    "incorrect", incorrect
+            ));
+        }
+
+        return result;
+    }
+
 }

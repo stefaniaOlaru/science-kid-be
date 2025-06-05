@@ -44,4 +44,24 @@ public class StudentAnswerController {
         }
     }
 
+    @GetMapping("/exercise/{exerciseId}/application/{applicationId}/class/{classId}/stats")
+    public ResponseEntity<?> getAnswerStats(
+            @PathVariable Long exerciseId,
+            @PathVariable Long applicationId,
+            @PathVariable Long classId) {
+        try {
+            return ResponseEntity.ok(studentAnswerService.getAnswerStats(exerciseId, applicationId, classId));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/application/{applicationId}/class/{classId}/incorrect-stats")
+    public ResponseEntity<?> getIncorrectStats(
+            @PathVariable Long applicationId,
+            @PathVariable Long classId) {
+        return ResponseEntity.ok(studentAnswerService.getIncorrectCountsByExercise(applicationId, classId));
+    }
+
+
 }

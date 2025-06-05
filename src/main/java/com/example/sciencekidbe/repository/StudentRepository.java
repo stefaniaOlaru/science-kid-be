@@ -12,5 +12,6 @@ import java.util.Optional;
 public interface StudentRepository extends JpaRepository<Student, Long>{
 
     Student findByEmail(String email);
-    List<Student> findByFullName(String fullName);
+    List<Student> findByClassEntity_ClassId(Long classId);
+
 }

@@ -31,15 +31,13 @@ public class TeacherController {
         }
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<?> addTeacher(@RequestBody TeacherDTO teacherDTO) {
+    @GetMapping("/{id}")
+    public ResponseEntity<TeacherDTO> getTeacherById(@PathVariable Long id) {
         try {
-             teacherService.addTeacher(teacherDTO);
-            return ResponseEntity.ok(HttpStatus.CREATED);
+            TeacherDTO teacher = teacherService.getTeacherById(id);
+            return ResponseEntity.ok(teacher);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Eroare la adăugarea profesorului.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 
