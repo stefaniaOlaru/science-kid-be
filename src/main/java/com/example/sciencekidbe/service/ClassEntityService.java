@@ -48,7 +48,8 @@ public class ClassEntityService implements IClassEntityService {
                         student.getBirthdate(),
                         student.getJoinDate(),
                         student.getClassEntity().getClassName(),
-                        student.getClassEntity().getClassId()
+                        student.getClassEntity().getClassId(),
+                        student.getImagePath()
                 ))
                 .collect(Collectors.toList());
 
@@ -59,7 +60,9 @@ public class ClassEntityService implements IClassEntityService {
                         teacher.getFullName(),
                         teacher.getEmail(),
                         teacher.getSubject(),
-                        teacher.getPhoneNumber()
+                        teacher.getPhoneNumber(),
+                        teacher.getImagePath(),
+                        teacher.getPdfPath()
                 ))
                 .collect(Collectors.toList());
 

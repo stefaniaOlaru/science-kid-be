@@ -20,14 +20,19 @@ public class TeacherDTO {
     private String email;
     private String subject;
     private String phoneNumber;
+    private String imagePath;
+    private String pdfPath;
     private List<String> classNames;
     private List<Long> classEntityIds;
 
-    public TeacherDTO(Long teacherId, String fullName, String email, String subject, String phoneNumber){
+    public TeacherDTO(Long teacherId, String fullName, String email, String subject, String phoneNumber, String imagePath,
+                      String pdfPath){
         this.teacherId = teacherId;
         this.fullName = fullName;
         this.email = email;
         this.subject = subject;
         this.phoneNumber = phoneNumber;
+        this.imagePath = imagePath;
+        this.pdfPath = pdfPath;
     }
 }

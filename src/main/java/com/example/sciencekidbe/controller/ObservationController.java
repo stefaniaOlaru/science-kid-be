@@ -1,6 +1,7 @@
 package com.example.sciencekidbe.controller;
 
 
+import com.example.sciencekidbe.dto.ObservationDTO;
 import com.example.sciencekidbe.model.Observation;
 import com.example.sciencekidbe.service.ObservationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/observation")
+@RequestMapping("/api/observation")
 @CrossOrigin("*")
 public class ObservationController {
     private final ObservationService observationService;
@@ -22,9 +23,9 @@ public class ObservationController {
     }
 
     @GetMapping("/{observationId}")
-    public ResponseEntity<Observation> getObservationByLecture(@PathVariable Long observationId){
+    public ResponseEntity<ObservationDTO> getObservationByLecture(@PathVariable Long observationId){
         try{
-            Observation observation = observationService.getObservationById(observationId);
+            ObservationDTO observation = observationService.getObservationById(observationId);
             return new ResponseEntity<>(observation, HttpStatus.OK);
         } catch (IllegalArgumentException e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

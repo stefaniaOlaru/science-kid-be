@@ -43,6 +43,12 @@ public class Teacher implements UserDetails {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    @Column(name = "image_path")
+    private String imagePath;
+
+    @Column(name = "pdf_path")
+    private String pdfPath;
+
     @ManyToMany
     @JoinTable(
             name = "teacher_class",

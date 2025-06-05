@@ -19,4 +19,5 @@ public class StudentDTO {
     private LocalDate joinDate;
     private String className;
     private Long classEntityId;
+    private String imagePath;
 }

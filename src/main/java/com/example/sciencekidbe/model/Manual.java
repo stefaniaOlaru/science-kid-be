@@ -28,6 +28,9 @@ public class Manual {
     @Column(name = "publisher")
     private String publisher;
 
+    @Column(name = "pdf_path")
+    private String pdfPath;
+
     @ManyToMany
     @JoinTable(
             name = "manual_class",

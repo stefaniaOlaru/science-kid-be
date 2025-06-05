@@ -31,13 +31,15 @@ public class TeacherController {
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<TeacherDTO> getTeacherById(@PathVariable Long id) {
-        try {
-            TeacherDTO teacher = teacherService.getTeacherById(id);
-            return ResponseEntity.ok(teacher);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    @GetMapping("/{teacherId}")
+    public ResponseEntity<?> getTeacherById(@PathVariable Long teacherId)
+    {
+        try{
+            TeacherDTO teacherDTO = teacherService.getTeacherById(teacherId);
+            return new ResponseEntity<>(teacherDTO, HttpStatus.OK);
+        } catch (IllegalArgumentException e)
+        {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 

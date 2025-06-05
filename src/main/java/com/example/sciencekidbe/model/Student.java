@@ -36,6 +36,9 @@ public class Student {
     @Column(name = "joinDate")
     private LocalDate joinDate;
 
+    @Column(name = "image_path")
+    private String imagePath;
+
     @ManyToOne
     @JoinColumn(name = "class_id", nullable = false)
     @JsonManagedReference

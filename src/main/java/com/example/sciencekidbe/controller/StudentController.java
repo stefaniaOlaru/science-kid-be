@@ -73,8 +73,8 @@ public class StudentController {
         }
     }
 
-    @GetMapping("/manuals")
-    public ResponseEntity<List<ManualDTO>> getManualForStudent(@RequestParam Long studentId){
+    @GetMapping("/{studentId}/manuals")
+    public ResponseEntity<List<ManualDTO>> getManualForStudent(@PathVariable Long studentId){
         try{
             Long classId = studentService.getStudentById(studentId).getClassEntityId();
             List<ManualDTO> manuals = studentService.getManualForStudent(classId);

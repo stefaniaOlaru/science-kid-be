@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,11 +22,13 @@ public class StudentService implements IStudentService {
 
     private final StudentRepository studentRepository;
     private final ClassEntityRepository classEntityRepository;
+    private final FileService fileService;
 
     @Autowired
-    public StudentService(StudentRepository studentRepository, ClassEntityRepository classEntityRepository) {
+    public StudentService(StudentRepository studentRepository, ClassEntityRepository classEntityRepository, FileService fileService) {
         this.studentRepository = studentRepository;
         this.classEntityRepository = classEntityRepository;
+        this.fileService = fileService;
     }
 
     @Override
@@ -74,7 +75,15 @@ public class StudentService implements IStudentService {
             throw new IllegalArgumentException("Studentul cu acest id nu a fost gasit");
         }
 
-        return convertToDTO(student);
+        StudentDTO dto = convertToDTO(student);
+
+        String originalPath = student.getImagePath();
+        if (originalPath != null && !originalPath.isEmpty()) {
+            String urlWithSas = fileService.generateUrlWithSasToken(originalPath);
+            dto.setImagePath(urlWithSas);
+        }
+
+        return dto;
     }
 
     public StudentDTO convertToDTO(Student student) {
@@ -85,7 +94,8 @@ public class StudentService implements IStudentService {
                 student.getBirthdate(),
                 student.getJoinDate(),
                 student.getClassEntity().getClassName(),
-                student.getClassEntity().getClassId()
+                student.getClassEntity().getClassId(),
+                student.getImagePath()
         );
     }
 
@@ -94,7 +104,19 @@ public class StudentService implements IStudentService {
     public List<StudentDTO> getAllStudents() {
         List<Student> students = studentRepository.findAll();
 
-        return students.stream().map(this::convertToDTO).collect(Collectors.toList());
+        return students.stream()
+                .map(student -> {
+                    StudentDTO dto = convertToDTO(student);
+
+                    String originalPath = student.getImagePath();
+                    if (originalPath != null && !originalPath.isEmpty()) {
+                        String urlWithSas = fileService.generateUrlWithSasToken(originalPath);
+                        dto.setImagePath(urlWithSas);
+                    }
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
     public List<ManualDTO> getManualForStudent(Long classId) {

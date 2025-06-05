@@ -5,6 +5,7 @@ import com.example.sciencekidbe.model.ClassEntity;
 import com.example.sciencekidbe.model.Manual;
 import com.example.sciencekidbe.repository.ClassEntityRepository;
 import com.example.sciencekidbe.repository.ManualRepository;
+import com.example.sciencekidbe.service.interfaces.IFileService;
 import com.example.sciencekidbe.service.interfaces.IManualService;
 import org.springframework.stereotype.Service;
 
@@ -19,10 +20,12 @@ public class ManualService implements IManualService {
 
     private final ManualRepository manualRepository;
     private final ClassEntityRepository classEntityRepository;
+    private final IFileService fileService;
 
-    public ManualService(ManualRepository manualRepository, ClassEntityRepository classEntityRepository){
+    public ManualService(ManualRepository manualRepository, ClassEntityRepository classEntityRepository, IFileService fileService){
         this.manualRepository = manualRepository;
         this.classEntityRepository = classEntityRepository;
+        this.fileService = fileService;
     }
 
     public Manual addManual(ManualDTO manualDTO){
@@ -56,6 +59,7 @@ public class ManualService implements IManualService {
                 manual.getManualId(),
                 manual.getManualName(),
                 manual.getPublisher(),
+                manual.getPdfPath(),
                 classNames,
                 classIds
         );
@@ -68,7 +72,19 @@ public class ManualService implements IManualService {
             throw new IllegalArgumentException("Nu s-au gasit manuale.");
         }
 
-        return manuals.stream().map(this::convertToDTO).collect(Collectors.toList());
+        return manuals.stream()
+                .map(manual -> {
+                    ManualDTO dto = convertToDTO(manual);
+
+                    String originalPath = manual.getPdfPath();
+                    if (originalPath != null && !originalPath.isEmpty()) {
+                        String urlWithSas = fileService.generateUrlWithSasToken(originalPath);
+                        dto.setPdfPath(urlWithSas);
+                    }
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
     public void deleteManual (Long manualId){

@@ -20,7 +20,7 @@ public class ContentController {
     }
 
     @GetMapping("/by-information/{informationId}")
-    public ResponseEntity<List<ContentDTO>> getContensByInformation(@PathVariable Long informationId){
+    public ResponseEntity<List<ContentDTO>> getContentsByInformation(@PathVariable Long informationId){
         try{
             List<ContentDTO> contents = contentService.getContentByInformation(informationId);
             return ResponseEntity.ok(contents);

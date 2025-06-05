@@ -1,15 +1,12 @@
 package com.example.sciencekidbe.service;
 
 import com.example.sciencekidbe.dto.ClassSummaryDTO;
-import com.example.sciencekidbe.dto.StudentDTO;
 import com.example.sciencekidbe.dto.TeacherDTO;
 import com.example.sciencekidbe.model.ClassEntity;
-import com.example.sciencekidbe.model.Student;
 import com.example.sciencekidbe.model.Teacher;
 import com.example.sciencekidbe.repository.ClassEntityRepository;
 import com.example.sciencekidbe.repository.TeacherRepository;
 import com.example.sciencekidbe.service.interfaces.ITeacherService;
-import org.springframework.beans.factory.support.InstanceSupplier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,10 +18,12 @@ public class TeacherService implements ITeacherService {
 
     private final TeacherRepository teacherRepository;
     private final ClassEntityRepository classEntityRepository;
+    private final FileService fileService;
 
-    public TeacherService(TeacherRepository teacherRepository, ClassEntityRepository classEntityRepository) {
+    public TeacherService(TeacherRepository teacherRepository, ClassEntityRepository classEntityRepository, FileService fileService) {
         this.teacherRepository = teacherRepository;
         this.classEntityRepository = classEntityRepository;
+        this.fileService = fileService;
     }
 
     private TeacherDTO convertToDTO(Teacher teacher){
@@ -43,6 +42,8 @@ public class TeacherService implements ITeacherService {
                 teacher.getEmail(),
                 teacher.getSubject(),
                 teacher.getPhoneNumber(),
+                teacher.getImagePath(),
+                teacher.getPdfPath(),
                 classNames,
                 classIds
         );
@@ -55,13 +56,25 @@ public class TeacherService implements ITeacherService {
             throw new IllegalArgumentException("Nu exista profesori inregistrati");
         }
 
-        return teachers.stream().map(this::convertToDTO).collect(Collectors.toList());
-    }
+        return teachers.stream()
+                .map(teacher -> {
+                    TeacherDTO dto = convertToDTO(teacher);
 
-    public TeacherDTO getTeacherById(Long teacherId) {
-        Teacher teacher = teacherRepository.findById(teacherId)
-                .orElseThrow(() -> new IllegalArgumentException("Profesorul cu ID-ul " + teacherId + " nu există."));
-        return convertToDTO(teacher);
+                    String originalImagePath = teacher.getImagePath();
+                    if (originalImagePath != null && !originalImagePath.isEmpty()) {
+                        String urlWithSas = fileService.generateUrlWithSasToken(originalImagePath);
+                        dto.setImagePath(urlWithSas);
+                    }
+
+                    String originalPdfPath = teacher.getPdfPath();
+                    if (originalPdfPath != null && !originalPdfPath.isEmpty()) {
+                        String urlWithSas = fileService.generateUrlWithSasToken(originalPdfPath);
+                        dto.setPdfPath(urlWithSas);
+                    }
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
     public void deleteTeacher(Long teacherId) {
@@ -97,7 +110,49 @@ public class TeacherService implements ITeacherService {
 
     public List<TeacherDTO> getTeachersByClass(Long classId) {
         List<Teacher> teachers = teacherRepository.findByClassEntities_ClassId(classId);
-        return teachers.stream().map(this::convertToDTO).collect(Collectors.toList());
+        return teachers.stream()
+                .map(teacher -> {
+                    TeacherDTO dto = convertToDTO(teacher);
+
+                    String originalImagePath = teacher.getImagePath();
+                    if (originalImagePath != null && !originalImagePath.isEmpty()) {
+                        String urlWithSas = fileService.generateUrlWithSasToken(originalImagePath);
+                        dto.setImagePath(urlWithSas);
+                    }
+
+                    String originalPdfPath = teacher.getPdfPath();
+                    if (originalPdfPath != null && !originalPdfPath.isEmpty()) {
+                        String urlWithSas = fileService.generateUrlWithSasToken(originalPdfPath);
+                        dto.setPdfPath(urlWithSas);
+                    }
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public TeacherDTO getTeacherById(Long teacherId) {
+        Teacher teacher = teacherRepository.findById(teacherId).orElse(null);
+
+        if (teacher == null) {
+            throw new IllegalArgumentException("Profesorul cu acest id nu a fost gasit");
+        }
+
+        TeacherDTO dto = convertToDTO(teacher);
+
+        String originalImagePath = teacher.getImagePath();
+        if (originalImagePath != null && !originalImagePath.isEmpty()) {
+            String urlWithSas = fileService.generateUrlWithSasToken(originalImagePath);
+            dto.setImagePath(urlWithSas);
+        }
+
+        String originalPdfPath = teacher.getPdfPath();
+        if (originalPdfPath != null && !originalPdfPath.isEmpty()) {
+            String urlWithSas = fileService.generateUrlWithSasToken(originalPdfPath);
+            dto.setPdfPath(urlWithSas);
+        }
+
+        return dto;
     }
 
     public List<ClassSummaryDTO> getClassesForTeacher(Long teacherId){

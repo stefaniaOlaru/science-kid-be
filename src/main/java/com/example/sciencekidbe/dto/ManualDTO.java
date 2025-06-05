@@ -15,6 +15,7 @@ public class ManualDTO {
     private Long manualId;
     private String manualName;
     private String publisher;
+    private String pdfPath;
     private List<String> classNames;
     private List<Long> classEntityIds;
 }
