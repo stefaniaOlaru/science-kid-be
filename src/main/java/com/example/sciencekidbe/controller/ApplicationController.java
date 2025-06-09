@@ -11,6 +11,7 @@ import com.example.sciencekidbe.service.ObservationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +27,7 @@ public class ApplicationController {
         this.applicationService = applicationService;
     }
 
+    @PreAuthorize("hasRole('ADMIN','PROFESOR')")
     @PostMapping("/add-exercise")
     public ResponseEntity<?> addExercise(@RequestBody ExerciseRequest request) {
         try {
@@ -37,6 +39,7 @@ public class ApplicationController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN','PROFESOR')")
     @PutMapping("/modify-exercise/{exerciseId}")
     public ResponseEntity<?> updateExercise(@PathVariable Long exerciseId,
                                             @RequestBody ExerciseRequest request) {
@@ -50,6 +53,7 @@ public class ApplicationController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN','PROFESOR')")
     @DeleteMapping("/remove-exercise/{exerciseId}")
     public ResponseEntity<?> deleteExercise(@PathVariable Long exerciseId) {
         try {

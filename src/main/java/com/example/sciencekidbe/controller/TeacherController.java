@@ -7,6 +7,7 @@ import com.example.sciencekidbe.model.Teacher;
 import com.example.sciencekidbe.service.TeacherService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class TeacherController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'PROFESOR')")
     @GetMapping("/{teacherId}")
     public ResponseEntity<?> getTeacherById(@PathVariable Long teacherId)
     {
@@ -43,6 +45,7 @@ public class TeacherController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete/{teacherId}")
     public ResponseEntity<?> deleteTeacher(@PathVariable Long teacherId) {
         try {
@@ -55,6 +58,7 @@ public class TeacherController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/update/{teacherId}")
     public ResponseEntity<?> updateTeacher(@PathVariable Long teacherId, @RequestBody TeacherDTO teacherDTO) {
         try {
@@ -67,6 +71,7 @@ public class TeacherController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'PROFESOR')")
     @GetMapping("/class/{classId}")
     public ResponseEntity<?> getTeachersByClass(@PathVariable Long classId) {
         try {
@@ -80,7 +85,7 @@ public class TeacherController {
         }
     }
 
-
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'PROFESOR')")
     @GetMapping("/{teacherId}/classes")
     public ResponseEntity<?> getClassesForTeacher(@PathVariable Long teacherId) {
         try {
@@ -93,6 +98,7 @@ public class TeacherController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'PROFESOR')")
     @GetMapping("/filter")
     public ResponseEntity<List<TeacherDTO>> filterStudents(@RequestParam(required = false) String email,
                                                            @RequestParam(required = false) String name){

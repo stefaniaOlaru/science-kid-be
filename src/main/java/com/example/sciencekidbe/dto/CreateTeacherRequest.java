@@ -1,6 +1,6 @@
 package com.example.sciencekidbe.dto;
 
-import com.example.sciencekidbe.model.ERole;
+import com.example.sciencekidbe.enums.ERole;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

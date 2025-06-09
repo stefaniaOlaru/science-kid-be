@@ -33,7 +33,7 @@ public class StudentService implements IStudentService {
 
     @Override
     public Student addStudent(StudentDTO studentDTO) {
-        if (studentRepository.findByEmail(studentDTO.getEmail()) != null) {
+        if (studentRepository.findByEmail(studentDTO.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Email-ul este deja utilizat.");
         }
 

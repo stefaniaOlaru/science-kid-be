@@ -4,6 +4,7 @@ import com.example.sciencekidbe.dto.ContentDTO;
 import com.example.sciencekidbe.model.Content;
 import com.example.sciencekidbe.service.ContentService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +20,7 @@ public class ContentController {
         this.contentService = contentService;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'PROFESOR')")
     @GetMapping("/by-information/{informationId}")
     public ResponseEntity<List<ContentDTO>> getContentsByInformation(@PathVariable Long informationId){
         try{

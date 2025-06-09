@@ -6,6 +6,7 @@ import com.example.sciencekidbe.service.ManualService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +24,7 @@ public class ManualController {
         this.manualService= manualService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/update")
     public ResponseEntity<?> updateManual(@RequestBody ManualDTO manualDTO){
         try{
@@ -33,6 +35,7 @@ public class ManualController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/add")
     public ResponseEntity<?> addManual(@RequestBody ManualDTO manualDTO){
         try{
@@ -44,6 +47,7 @@ public class ManualController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all")
     public ResponseEntity<List<ManualDTO>> getAllManual(){
         try{
@@ -55,6 +59,7 @@ public class ManualController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete/{manualId}")
     public ResponseEntity<Void> deleteManual(@PathVariable Long manualId){
         try{
@@ -65,6 +70,7 @@ public class ManualController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/filter")
     public ResponseEntity<List<ManualDTO>> filterManuals(
             @RequestParam(required = false) String manualName,

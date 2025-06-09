@@ -2,9 +2,11 @@ package com.example.sciencekidbe.service;
 
 import com.example.sciencekidbe.dto.ObservationDTO;
 import com.example.sciencekidbe.dto.ObservationImageDTO;
+import com.example.sciencekidbe.dto.ObservationQuestionDTO;
 import com.example.sciencekidbe.dto.StudentDTO;
 import com.example.sciencekidbe.model.Observation;
 import com.example.sciencekidbe.model.ObservationImage;
+import com.example.sciencekidbe.model.ObservationQuestion;
 import com.example.sciencekidbe.model.Student;
 import com.example.sciencekidbe.repository.ObservationRepository;
 import io.micrometer.observation.ObservationTextPublisher;
@@ -24,14 +26,29 @@ public class ObservationService {
         this.fileService = fileService;
     }
 
+    private ObservationQuestionDTO mapToQuestionDTO(ObservationQuestion question){
+        return new ObservationQuestionDTO(
+                question.getQuestionId(),
+                question.getQuestionContent(),
+                question.getAnswer()
+        );
+    }
+
+
     private ObservationImageDTO mapToImageDTO(ObservationImage image) {
         String urlWithSas = null;
         if (image.getImagePath() != null && !image.getImagePath().isEmpty()) {
             urlWithSas = fileService.generateUrlWithSasToken(image.getImagePath());
         }
+
+        List<ObservationQuestionDTO> questionDTOS = image.getQuestions().stream()
+                .map(this::mapToQuestionDTO)
+                .toList();
+
         return new ObservationImageDTO(
                 image.getImageId(),
-                urlWithSas != null ? urlWithSas : image.getImagePath()
+                urlWithSas != null ? urlWithSas : image.getImagePath(),
+                questionDTOS
         );
     }
 

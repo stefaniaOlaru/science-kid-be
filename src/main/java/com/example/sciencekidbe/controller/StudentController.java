@@ -7,6 +7,8 @@ import com.example.sciencekidbe.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -24,6 +26,7 @@ public class StudentController {
         this.studentService = studentService;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESOR')")
     @PostMapping("/add")
     public ResponseEntity<?> addStudent(@RequestBody StudentDTO studentDTO){
         try{
@@ -35,6 +38,7 @@ public class StudentController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'PROFESOR')")
     @GetMapping("/{studentId}")
     public ResponseEntity<?> getStudentById(@PathVariable Long studentId)
     {
@@ -47,12 +51,14 @@ public class StudentController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'PROFESOR')")
     @GetMapping("/all")
     public ResponseEntity<List<StudentDTO>> getAllStudents(){
         List<StudentDTO> students = studentService.getAllStudents();
         return new ResponseEntity<>(students, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESOR')")
     @DeleteMapping("/delete/{studentId}")
     public ResponseEntity<Void> deleteStudent(@PathVariable Long studentId){
         try{
@@ -63,6 +69,7 @@ public class StudentController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESOR')")
     @PutMapping("/update")
     public ResponseEntity<?> updateStudent(@RequestBody StudentDTO updatedStudent){
         try{
@@ -73,6 +80,7 @@ public class StudentController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'PROFESOR')")
     @GetMapping("/{studentId}/manuals")
     public ResponseEntity<List<ManualDTO>> getManualForStudent(@PathVariable Long studentId){
         try{
@@ -84,6 +92,7 @@ public class StudentController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'PROFESOR')")
     @GetMapping("/filter")
     public ResponseEntity<List<StudentDTO>> filterStudents( @RequestParam(required = false) String email,
                                                             @RequestParam(required = false) String name){

@@ -4,6 +4,7 @@ import com.example.sciencekidbe.enums.ContainerName;
 import com.example.sciencekidbe.service.FileService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +22,7 @@ public class FileController {
         this.fileService = fileService;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESOR')")
     @PostMapping("upload/{containerName}/{entityId}")
     public ResponseEntity<String> uploadImage(
             @PathVariable String containerName,
