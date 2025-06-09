@@ -3,10 +3,12 @@ package com.example.sciencekidbe.service;
 import com.example.sciencekidbe.dto.ClassSummaryDTO;
 import com.example.sciencekidbe.dto.TeacherDTO;
 import com.example.sciencekidbe.model.ClassEntity;
+import com.example.sciencekidbe.model.ERole;
 import com.example.sciencekidbe.model.Teacher;
 import com.example.sciencekidbe.repository.ClassEntityRepository;
 import com.example.sciencekidbe.repository.TeacherRepository;
 import com.example.sciencekidbe.service.interfaces.ITeacherService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,11 +21,13 @@ public class TeacherService implements ITeacherService {
     private final TeacherRepository teacherRepository;
     private final ClassEntityRepository classEntityRepository;
     private final FileService fileService;
+    private final PasswordEncoder passwordEncoder;
 
-    public TeacherService(TeacherRepository teacherRepository, ClassEntityRepository classEntityRepository, FileService fileService) {
+    public TeacherService(TeacherRepository teacherRepository, ClassEntityRepository classEntityRepository, FileService fileService, PasswordEncoder passwordEncoder) {
         this.teacherRepository = teacherRepository;
         this.classEntityRepository = classEntityRepository;
         this.fileService = fileService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     private TeacherDTO convertToDTO(Teacher teacher){
@@ -44,13 +48,27 @@ public class TeacherService implements ITeacherService {
                 teacher.getPhoneNumber(),
                 teacher.getImagePath(),
                 teacher.getPdfPath(),
+                teacher.getPassword(),
                 classNames,
                 classIds
         );
     }
 
+    public void changePassword(Long teacherId, String oldPassword, String newPassword) {
+        Teacher teacher = teacherRepository.findById(teacherId)
+                .orElseThrow(() -> new IllegalArgumentException("Profesorul nu a fost găsit"));
+
+        if (!passwordEncoder.matches(oldPassword, teacher.getPassword())) {
+            throw new IllegalArgumentException("Parola veche este incorectă");
+        }
+
+        teacher.setPassword(passwordEncoder.encode(newPassword));
+        teacherRepository.save(teacher);
+    }
+
+
     public List<TeacherDTO> getAllTeacher(){
-        List<Teacher> teachers = teacherRepository.findAll();
+        List<Teacher> teachers = teacherRepository.findByRole(ERole.ROLE_PROFESOR);
 
         if(teachers.isEmpty()){
             throw new IllegalArgumentException("Nu exista profesori inregistrati");

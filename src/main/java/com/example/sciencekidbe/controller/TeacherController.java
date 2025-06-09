@@ -1,5 +1,6 @@
 package com.example.sciencekidbe.controller;
 
+import com.example.sciencekidbe.dto.ChangePassword;
 import com.example.sciencekidbe.dto.ClassSummaryDTO;
 import com.example.sciencekidbe.dto.StudentDTO;
 import com.example.sciencekidbe.dto.TeacherDTO;
@@ -42,6 +43,17 @@ public class TeacherController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    @PutMapping("/{id}/change-password")
+    public ResponseEntity<String> changePassword(@PathVariable Long id, @RequestBody ChangePassword dto) {
+        try {
+            teacherService.changePassword(id, dto.getOldPassword(), dto.getNewPassword());
+            return ResponseEntity.ok("Parola a fost schimbată cu succes");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 
     @DeleteMapping("/delete/{teacherId}")
     public ResponseEntity<?> deleteTeacher(@PathVariable Long teacherId) {

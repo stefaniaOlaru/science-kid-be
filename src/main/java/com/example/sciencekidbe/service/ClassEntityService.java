@@ -62,7 +62,8 @@ public class ClassEntityService implements IClassEntityService {
                         teacher.getSubject(),
                         teacher.getPhoneNumber(),
                         teacher.getImagePath(),
-                        teacher.getPdfPath()
+                        teacher.getPdfPath(),
+                        teacher.getPassword()
                 ))
                 .collect(Collectors.toList());
 

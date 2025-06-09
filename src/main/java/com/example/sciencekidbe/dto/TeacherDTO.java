@@ -22,16 +22,18 @@ public class TeacherDTO {
     private String phoneNumber;
     private String imagePath;
     private String pdfPath;
+    private String password;
     private List<String> classNames;
     private List<Long> classEntityIds;
 
     public TeacherDTO(Long teacherId, String fullName, String email, String subject, String phoneNumber, String imagePath,
-                      String pdfPath){
+                      String pdfPath, String password){
         this.teacherId = teacherId;
         this.fullName = fullName;
         this.email = email;
         this.subject = subject;
         this.phoneNumber = phoneNumber;
+        this.password = password;
         this.imagePath = imagePath;
         this.pdfPath = pdfPath;
     }

@@ -39,6 +39,10 @@ public class Student {
     @Column(name = "image_path")
     private String imagePath;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private ERole role;
+
     @ManyToOne
     @JoinColumn(name = "class_id", nullable = false)
     @JsonManagedReference
