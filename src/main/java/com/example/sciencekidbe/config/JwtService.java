@@ -1,5 +1,6 @@
 package com.example.sciencekidbe.config;
 
+import com.example.sciencekidbe.model.Student;
 import com.example.sciencekidbe.model.Teacher;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -50,7 +51,14 @@ public class JwtService {
         for (GrantedAuthority authority : authorities)
             role = authority.getAuthority();
         extraClaims.put("role",role);
-        extraClaims.put("id", ((Teacher) userDetails).getTeacherId());
+        if (userDetails instanceof Teacher) {
+            extraClaims.put("id", ((Teacher) userDetails).getTeacherId());
+        } else if (userDetails instanceof Student) {
+            extraClaims.put("id", ((Student) userDetails).getStudentId());
+        } else {
+            // fallback or throw error if unexpected type
+            extraClaims.put("id", "unknown");
+        }
 
         return Jwts.builder()
                 .setClaims(extraClaims)

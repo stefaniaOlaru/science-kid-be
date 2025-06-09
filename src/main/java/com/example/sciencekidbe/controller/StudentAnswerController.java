@@ -5,6 +5,7 @@ import com.example.sciencekidbe.dto.StudentAnswerRequest;
 import com.example.sciencekidbe.model.StudentAnswer;
 import com.example.sciencekidbe.service.StudentAnswerService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -20,6 +21,7 @@ public class StudentAnswerController {
         this.studentAnswerService = studentAnswerService;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT')")
     @PostMapping("/submit")
     public ResponseEntity<?> submitAnswer(@RequestBody StudentAnswerRequest studentAnswerRequest) {
         try {
@@ -32,6 +34,7 @@ public class StudentAnswerController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'PROFESOR')")
     @GetMapping("/exercise/{exerciseId}/application/{applicationId}/answers/class/{classEntityId}")
     public ResponseEntity<?> getAnswersByExerciseAndApplication(
             @PathVariable Long exerciseId,
@@ -44,6 +47,7 @@ public class StudentAnswerController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'PROFESOR')")
     @GetMapping("/exercise/{exerciseId}/application/{applicationId}/class/{classId}/stats")
     public ResponseEntity<?> getAnswerStats(
             @PathVariable Long exerciseId,
@@ -56,6 +60,7 @@ public class StudentAnswerController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'PROFESOR')")
     @GetMapping("/application/{applicationId}/class/{classId}/incorrect-stats")
     public ResponseEntity<?> getIncorrectStats(
             @PathVariable Long applicationId,

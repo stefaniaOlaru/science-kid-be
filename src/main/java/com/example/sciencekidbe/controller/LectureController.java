@@ -6,6 +6,7 @@ import com.example.sciencekidbe.model.Lecture;
 import com.example.sciencekidbe.service.LectureService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class LectureController {
         this.lectureService = lectureService;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'PROFESOR')")
     @GetMapping("/unit/{unitId}")
     public ResponseEntity<List<LectureDTO>> getLecturesByUnit(@PathVariable Long unitId) {
         try{

@@ -1,5 +1,6 @@
 package com.example.sciencekidbe.model;
 
+import com.example.sciencekidbe.enums.ERole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -2,8 +2,8 @@ package com.example.sciencekidbe.service;
 
 import com.example.sciencekidbe.dto.ClassSummaryDTO;
 import com.example.sciencekidbe.dto.TeacherDTO;
+import com.example.sciencekidbe.enums.ERole;
 import com.example.sciencekidbe.model.ClassEntity;
-import com.example.sciencekidbe.model.ERole;
 import com.example.sciencekidbe.model.Teacher;
 import com.example.sciencekidbe.repository.ClassEntityRepository;
 import com.example.sciencekidbe.repository.TeacherRepository;

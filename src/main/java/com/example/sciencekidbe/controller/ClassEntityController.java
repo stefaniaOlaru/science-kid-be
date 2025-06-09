@@ -6,6 +6,7 @@ import com.example.sciencekidbe.model.ClassEntity;
 import com.example.sciencekidbe.service.ClassEntityService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,12 +22,14 @@ public class ClassEntityController {
         this.classEntityService = classEntityService;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'PROFESOR')")
     @GetMapping("/all")
     public ResponseEntity<List<ClassSummaryDTO>> getAllClasses(){
         List<ClassSummaryDTO> classes = classEntityService.getAllClasses();
         return new ResponseEntity<>(classes, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'PROFESOR')")
     @GetMapping("/details/{classId}")
     public ResponseEntity<ClassEntityDTO> getClassDetails(@PathVariable Long classId){
         Optional<ClassEntity> classEntityOpt = classEntityService.getClassDetailsByClassId(classId);

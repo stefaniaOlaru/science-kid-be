@@ -7,6 +7,7 @@ import com.example.sciencekidbe.service.ObservationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,7 @@ public class ObservationController {
         this.observationService = observationService;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'PROFESOR')")
     @GetMapping("/{observationId}")
     public ResponseEntity<ObservationDTO> getObservationByLecture(@PathVariable Long observationId){
         try{

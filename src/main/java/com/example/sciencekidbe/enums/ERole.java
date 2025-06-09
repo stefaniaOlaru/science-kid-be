@@ -1,4 +1,4 @@
-package com.example.sciencekidbe.model;
+package com.example.sciencekidbe.enums;
 
 public enum ERole {
     ROLE_ADMIN,

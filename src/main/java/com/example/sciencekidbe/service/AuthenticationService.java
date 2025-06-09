@@ -2,13 +2,15 @@ package com.example.sciencekidbe.service;
 
 import com.example.sciencekidbe.config.JwtService;
 import com.example.sciencekidbe.dto.AuthenticationResponse;
+import com.example.sciencekidbe.dto.CreateStudentRequest;
 import com.example.sciencekidbe.dto.CreateTeacherRequest;
 import com.example.sciencekidbe.dto.SigninRequest;
-import com.example.sciencekidbe.dto.TeacherDTO;
 import com.example.sciencekidbe.model.ClassEntity;
-import com.example.sciencekidbe.model.ERole;
+import com.example.sciencekidbe.enums.ERole;
+import com.example.sciencekidbe.model.Student;
 import com.example.sciencekidbe.model.Teacher;
 import com.example.sciencekidbe.repository.ClassEntityRepository;
+import com.example.sciencekidbe.repository.StudentRepository;
 import com.example.sciencekidbe.repository.TeacherRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,13 +18,16 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
     private final TeacherRepository teacherRepository;
+    private final StudentRepository studentRepository;
     private final ClassEntityRepository classEntityRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -41,6 +46,22 @@ public class AuthenticationService {
                 .token(jwtToken)
                 .role(user.getRole().toString())
                 .teacherId(user.getTeacherId())
+                .build();
+    }
+
+    public AuthenticationResponse loginStudent(SigninRequest request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(), request.getPassword())
+        );
+        var user = studentRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        var jwtToken = jwtService.generateToken(user);
+
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .role(user.getRole().toString())
+                .teacherId(user.getStudentId())
                 .build();
     }
 
@@ -73,6 +94,34 @@ public class AuthenticationService {
                 .teacherId(savedTeacher.getTeacherId())
                 .build();
 
+    }
+
+    public AuthenticationResponse addStudent(CreateStudentRequest createStudentRequest){
+        validateEmail(createStudentRequest.getEmail());
+        ClassEntity classEntity = classEntityRepository.findById(createStudentRequest.getClassId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Clasa cu ID-ul " + createStudentRequest.getClassId() + " nu a fost găsită."
+                ));
+
+        String preGeneratedStudentPassword = UUID.randomUUID().toString().replace("-", "").substring(0, 10);
+
+        Student student = new Student();
+        student.setFullName(createStudentRequest.getFullName());
+        student.setBirthdate(createStudentRequest.getBirthdate());
+        student.setEmail(createStudentRequest.getEmail());
+        student.setJoinDate(LocalDate.now());
+        student.setPassword(passwordEncoder.encode(preGeneratedStudentPassword));
+        student.setRole(ERole.ROLE_STUDENT);
+        student.setClassEntity(classEntity);
+
+        Student savedStudent = studentRepository.save(student);
+        var jwtToken = jwtService.generateToken(student);
+
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .role(student.getRole().toString())
+                .teacherId(savedStudent.getStudentId())
+                .build();
     }
 
     private void validateEmail(String email) {

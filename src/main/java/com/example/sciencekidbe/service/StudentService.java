@@ -2,8 +2,8 @@ package com.example.sciencekidbe.service;
 
 import com.example.sciencekidbe.dto.ManualDTO;
 import com.example.sciencekidbe.dto.StudentDTO;
+import com.example.sciencekidbe.enums.ERole;
 import com.example.sciencekidbe.model.ClassEntity;
-import com.example.sciencekidbe.model.ERole;
 import com.example.sciencekidbe.model.Student;
 import com.example.sciencekidbe.repository.ClassEntityRepository;
 import com.example.sciencekidbe.repository.StudentRepository;
@@ -34,7 +34,7 @@ public class StudentService implements IStudentService {
 
     @Override
     public Student addStudent(StudentDTO studentDTO) {
-        if (studentRepository.findByEmail(studentDTO.getEmail()) != null) {
+        if (studentRepository.findByEmail(studentDTO.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Email-ul este deja utilizat.");
         }
 
