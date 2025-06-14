@@ -1,5 +1,8 @@
 package com.example.sciencekidbe.config;
 
+import com.example.sciencekidbe.model.Student;
+import com.example.sciencekidbe.model.Teacher;
+import com.example.sciencekidbe.repository.StudentRepository;
 import com.example.sciencekidbe.repository.TeacherRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -13,15 +16,27 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Optional;
+
 @Configuration
 @RequiredArgsConstructor
 public class ApplicationConfig {
     private final TeacherRepository teacherRepository;
+    private final StudentRepository studentRepository;
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> teacherRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return username -> {
+            Optional<Student> studentOpt = studentRepository.findByEmail(username);
+            if (studentOpt.isPresent()) {
+                return studentOpt.get(); // assuming Student implements UserDetails
+            }
+            Optional<Teacher> teacherOpt = teacherRepository.findByEmail(username);
+            if (teacherOpt.isPresent()) {
+                return teacherOpt.get(); // assuming Teacher implements UserDetails
+            }
+            throw new UsernameNotFoundException("User not found");
+        };
     }
 
     @Bean

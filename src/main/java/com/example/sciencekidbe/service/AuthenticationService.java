@@ -1,10 +1,7 @@
 package com.example.sciencekidbe.service;
 
 import com.example.sciencekidbe.config.JwtService;
-import com.example.sciencekidbe.dto.AuthenticationResponse;
-import com.example.sciencekidbe.dto.CreateStudentRequest;
-import com.example.sciencekidbe.dto.CreateTeacherRequest;
-import com.example.sciencekidbe.dto.SigninRequest;
+import com.example.sciencekidbe.dto.*;
 import com.example.sciencekidbe.model.ClassEntity;
 import com.example.sciencekidbe.enums.ERole;
 import com.example.sciencekidbe.model.Student;
@@ -96,7 +93,7 @@ public class AuthenticationService {
 
     }
 
-    public AuthenticationResponse addStudent(CreateStudentRequest createStudentRequest){
+    public StudentAuthenticationResponse addStudent(CreateStudentRequest createStudentRequest){
         validateEmail(createStudentRequest.getEmail());
         ClassEntity classEntity = classEntityRepository.findById(createStudentRequest.getClassId())
                 .orElseThrow(() -> new IllegalArgumentException(
@@ -117,10 +114,11 @@ public class AuthenticationService {
         Student savedStudent = studentRepository.save(student);
         var jwtToken = jwtService.generateToken(student);
 
-        return AuthenticationResponse.builder()
+        return StudentAuthenticationResponse.builder()
                 .token(jwtToken)
                 .role(student.getRole().toString())
                 .teacherId(savedStudent.getStudentId())
+                .password(preGeneratedStudentPassword)
                 .build();
     }
 

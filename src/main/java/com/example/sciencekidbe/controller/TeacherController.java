@@ -46,6 +46,7 @@ public class TeacherController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESOR')")
     @PutMapping("/{id}/change-password")
     public ResponseEntity<String> changePassword(@PathVariable Long id, @RequestBody ChangePassword dto) {
         try {

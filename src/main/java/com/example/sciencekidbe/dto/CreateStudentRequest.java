@@ -15,7 +15,6 @@ import java.time.LocalDate;
 public class CreateStudentRequest {
     private String fullName;
     private String email;
-    private String password;
     private LocalDate birthdate;
     private Long classId;
 }

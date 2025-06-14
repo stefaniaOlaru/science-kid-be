@@ -1,5 +1,6 @@
 package com.example.sciencekidbe.controller;
 
+import com.example.sciencekidbe.dto.ChangePassword;
 import com.example.sciencekidbe.dto.ManualDTO;
 import com.example.sciencekidbe.dto.StudentDTO;
 import com.example.sciencekidbe.model.Student;
@@ -101,6 +102,17 @@ public class StudentController {
             return ResponseEntity.ok(filteredStudents);
         } catch (IllegalArgumentException e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT')")
+    @PutMapping("/{id}/change-password")
+    public ResponseEntity<String> changePassword(@PathVariable Long id, @RequestBody ChangePassword dto) {
+        try {
+            studentService.changePassword(id, dto.getOldPassword(), dto.getNewPassword());
+            return ResponseEntity.ok("Parola a fost schimbată cu succes");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

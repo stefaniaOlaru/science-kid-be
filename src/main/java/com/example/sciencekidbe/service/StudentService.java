@@ -5,10 +5,12 @@ import com.example.sciencekidbe.dto.StudentDTO;
 import com.example.sciencekidbe.enums.ERole;
 import com.example.sciencekidbe.model.ClassEntity;
 import com.example.sciencekidbe.model.Student;
+import com.example.sciencekidbe.model.Teacher;
 import com.example.sciencekidbe.repository.ClassEntityRepository;
 import com.example.sciencekidbe.repository.StudentRepository;
 import com.example.sciencekidbe.service.interfaces.IStudentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -24,12 +26,14 @@ public class StudentService implements IStudentService {
     private final StudentRepository studentRepository;
     private final ClassEntityRepository classEntityRepository;
     private final FileService fileService;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public StudentService(StudentRepository studentRepository, ClassEntityRepository classEntityRepository, FileService fileService) {
+    public StudentService(StudentRepository studentRepository, ClassEntityRepository classEntityRepository, FileService fileService, PasswordEncoder passwordEncoder) {
         this.studentRepository = studentRepository;
         this.classEntityRepository = classEntityRepository;
         this.fileService = fileService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -227,5 +231,17 @@ public class StudentService implements IStudentService {
         return students.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    public void changePassword(Long studentId, String oldPassword, String newPassword) {
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new IllegalArgumentException("Studentul nu a fost găsit"));
+
+        if (!passwordEncoder.matches(oldPassword, student.getPassword())) {
+            throw new IllegalArgumentException("Parola veche este incorectă");
+        }
+
+        student.setPassword(passwordEncoder.encode(newPassword));
+        studentRepository.save(student);
     }
 }
