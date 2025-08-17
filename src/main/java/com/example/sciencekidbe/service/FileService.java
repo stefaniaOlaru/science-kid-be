@@ -8,9 +8,11 @@ import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.example.sciencekidbe.enums.ContainerName;
 import com.example.sciencekidbe.model.Manual;
+import com.example.sciencekidbe.model.Observation;
 import com.example.sciencekidbe.model.Student;
 import com.example.sciencekidbe.model.Teacher;
 import com.example.sciencekidbe.repository.ManualRepository;
+import com.example.sciencekidbe.repository.ObservationRepository;
 import com.example.sciencekidbe.repository.StudentRepository;
 import com.example.sciencekidbe.repository.TeacherRepository;
 import com.example.sciencekidbe.service.interfaces.IFileService;
@@ -29,11 +31,16 @@ public class FileService implements IFileService {
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
     private final ManualRepository manualRepository;
+    private final ObservationRepository observationRepository;
 
-    public FileService(StudentRepository studentRepository, TeacherRepository teacherRepository, ManualRepository manualRepository) {
+    public FileService(StudentRepository studentRepository,
+                       TeacherRepository teacherRepository,
+                       ManualRepository manualRepository,
+                       ObservationRepository observationRepository) {
         this.studentRepository = studentRepository;
         this.teacherRepository = teacherRepository;
         this.manualRepository = manualRepository;
+        this.observationRepository = observationRepository;
     }
 
     public String uploadFileToBlob(Long entityId, ContainerName containerName, String filePath) {
@@ -89,6 +96,14 @@ public class FileService implements IFileService {
                 }
                 teacher.setPdfPath(blobUrl);
                 teacherRepository.save(teacher);
+            }
+            case AUDIO -> {
+                Observation observation = observationRepository.findById(entityId).orElse(null);
+                if (observation == null) {
+                    throw new IllegalArgumentException("Observarea cu acest id nu a fost gasita");
+                }
+                observation.setAudioPath(blobUrl);
+                observationRepository.save(observation);
             }
             default -> throw new IllegalArgumentException("Container name not supported: " + containerName);
         }

@@ -26,4 +26,6 @@ public class Observation {
     @OneToMany(mappedBy = "observation", cascade = CascadeType.ALL)
     private List<ObservationImage> images;
 
+    @Column(name = "audio_path")
+    private String audioPath;
 }

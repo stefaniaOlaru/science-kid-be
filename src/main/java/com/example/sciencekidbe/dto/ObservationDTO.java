@@ -14,4 +14,5 @@ import java.util.List;
 public class ObservationDTO {
     private Long observationId;
     private List<ObservationImageDTO> observationImages;
+    private String audioPath;
 }

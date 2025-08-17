@@ -58,9 +58,15 @@ public class ObservationService {
                 .map(this::mapToImageDTO)
                 .collect(Collectors.toList());
 
+        String audioPathWithSas = null;
+        if (observation.getAudioPath() != null && !observation.getAudioPath().isEmpty()) {
+            audioPathWithSas = fileService.generateUrlWithSasToken(observation.getAudioPath());
+        }
+
         return new ObservationDTO(
                 observation.getObservationId(),
-                imageDTOs
+                imageDTOs,
+                audioPathWithSas
         );
     }
 
