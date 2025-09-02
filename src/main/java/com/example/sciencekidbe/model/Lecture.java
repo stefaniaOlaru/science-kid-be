@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -37,4 +40,6 @@ public class Lecture {
     @JoinColumn(name = "information_id")
     private Information information;
 
+    @OneToMany(mappedBy = "lecture", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<QrCode> qrCodes = new ArrayList<>();
 }

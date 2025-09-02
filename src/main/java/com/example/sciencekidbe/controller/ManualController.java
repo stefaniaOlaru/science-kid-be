@@ -47,7 +47,7 @@ public class ManualController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','PROFESOR' )")
     @GetMapping("/all")
     public ResponseEntity<List<ManualDTO>> getAllManual(){
         try{

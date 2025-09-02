@@ -23,6 +23,7 @@ public class TeacherController {
         this.teacherService = teacherService;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESOR')")
     @GetMapping("/all")
     public ResponseEntity<List<TeacherDTO>> getAllTeachers(){
         try{

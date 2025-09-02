@@ -6,6 +6,7 @@ public enum ContainerName {
     STUDENT,
     PROFESSOR_CV,
     MANUAL,
-    AUDIO
+    AUDIO,
+    LECTURE_VIDEO
 }
 
