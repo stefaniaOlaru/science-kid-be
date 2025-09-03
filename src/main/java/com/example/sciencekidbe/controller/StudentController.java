@@ -27,18 +27,6 @@ public class StudentController {
         this.studentService = studentService;
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESOR')")
-    @PostMapping("/add")
-    public ResponseEntity<?> addStudent(@RequestBody StudentDTO studentDTO){
-        try{
-           Student newStudent = studentService.addStudent(studentDTO);
-            StudentDTO dto = studentService.convertToDTO(newStudent);
-            return new ResponseEntity<>(dto, HttpStatus.CREATED);
-        }catch (IllegalArgumentException e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
     @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'PROFESOR')")
     @GetMapping("/{studentId}")
     public ResponseEntity<?> getStudentById(@PathVariable Long studentId)

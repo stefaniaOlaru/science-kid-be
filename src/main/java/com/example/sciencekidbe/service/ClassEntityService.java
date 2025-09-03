@@ -5,8 +5,11 @@ import com.example.sciencekidbe.model.*;
 import com.example.sciencekidbe.repository.ClassEntityRepository;
 import com.example.sciencekidbe.repository.UnitRepository;
 import com.example.sciencekidbe.service.interfaces.IClassEntityService;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -94,5 +97,22 @@ public class ClassEntityService implements IClassEntityService {
                 teachers,
                 manuals
         );
+    }
+
+    public Resource downloadClassCsvByClassId(Long classId) {
+        ClassEntity classEntity = classEntityRepository.findById(classId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Clasa cu id-ul: " + classId + " nu a fost găsită"
+                ));
+
+        String directory = "C:/Users/stanbydrew/Desktop/science-kid-be/src/main";
+        String filePath = directory + "/" + classEntity.getClassName() + ".csv";
+
+        File file = new File(filePath);
+        if (!file.exists()) {
+            throw new IllegalArgumentException("CSV file-ul pentru aceasta clasa nu a fost gasit: " + classEntity.getClassName());
+        }
+
+        return new FileSystemResource(file);
     }
 }

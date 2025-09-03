@@ -15,10 +15,16 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -94,12 +100,22 @@ public class AuthenticationService {
     }
 
     public StudentAuthenticationResponse addStudent(CreateStudentRequest createStudentRequest){
-        validateEmail(createStudentRequest.getEmail());
-        ClassEntity classEntity = classEntityRepository.findById(createStudentRequest.getClassId())
+        ClassEntity classEntity = classEntityRepository.findById(createStudentRequest.getClassEntityId())
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "Clasa cu ID-ul " + createStudentRequest.getClassId() + " nu a fost găsită."
+                        "Clasa cu ID-ul " + createStudentRequest.getClassEntityId() + " nu a fost găsită."
                 ));
 
+        if (calculateAge(createStudentRequest.getBirthdate()) < 7 || calculateAge(createStudentRequest.getBirthdate()) > 12) {
+            throw new IllegalArgumentException("Varsta elevului trebuie sa fie intre 7 si 12 ani.");
+        }
+
+        if (!isValidEmailFormat(createStudentRequest.getEmail())) {
+            throw new IllegalArgumentException("Email-ul nu corespunde formatului.");
+        }
+
+        if (classEntity.getStudents().size() >= 30) {
+            throw new IllegalArgumentException("The class " + classEntity.getClassName() + " is already full.");
+        }
         String preGeneratedStudentPassword = UUID.randomUUID().toString().replace("-", "").substring(0, 10);
 
         Student student = new Student();
@@ -114,12 +130,35 @@ public class AuthenticationService {
         Student savedStudent = studentRepository.save(student);
         var jwtToken = jwtService.generateToken(student);
 
+        writeStudentCredentialsToCsv(classEntity.getClassName(), savedStudent.getFullName(), preGeneratedStudentPassword);
+
         return StudentAuthenticationResponse.builder()
                 .token(jwtToken)
                 .role(student.getRole().toString())
                 .teacherId(savedStudent.getStudentId())
                 .password(preGeneratedStudentPassword)
                 .build();
+    }
+
+    private void writeStudentCredentialsToCsv(String className, String fullName, String password) {
+        String directory = "C:/Users/stanbydrew/Desktop/science-kid-be/src/main";
+        String fileName = directory + "/" + className + ".csv"; // full path to file
+
+        File file = new File(fileName);
+
+        try (FileWriter writer = new FileWriter(file, true)) { // true = append mode
+            // add header if file is new/empty
+            if (file.length() == 0) {
+                writer.append("Name,Password\n");
+            }
+
+            writer.append(fullName)
+                    .append(",")
+                    .append(password)
+                    .append("\n");
+        } catch (IOException e) {
+            throw new RuntimeException("Eroare la scrierea în fișierul CSV pentru clasă: " + className, e);
+        }
     }
 
     private void validateEmail(String email) {
@@ -134,6 +173,18 @@ public class AuthenticationService {
         if (phoneNumber == null || !phoneNumber.matches(phoneRegex)) {
             throw new IllegalArgumentException("Numărul de telefon trebuie să aibă exact 10 cifre și să înceapă cu 0.");
         }
+    }
+
+    private int calculateAge(LocalDate birthdate) {
+        return Period.between(birthdate, LocalDate.now()).getYears();
+    }
+
+    private boolean isValidEmailFormat(String email) {
+        String emailRegex = "^[a-zA-Z]+\\.[A-Z]+\\.[a-zA-Z]+@elev\\.ro$";
+        Pattern pattern = Pattern.compile(emailRegex);
+        Matcher matcher = pattern.matcher(email);
+
+        return matcher.matches();
     }
 
 }

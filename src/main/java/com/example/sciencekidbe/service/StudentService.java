@@ -37,43 +37,6 @@ public class StudentService implements IStudentService {
     }
 
     @Override
-    public Student addStudent(StudentDTO studentDTO) {
-        if (studentRepository.findByEmail(studentDTO.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("Email-ul este deja utilizat.");
-        }
-
-        if (calculateAge(studentDTO.getBirthdate()) < 7 || calculateAge(studentDTO.getBirthdate()) > 12) {
-            throw new IllegalArgumentException("Varsta elevului trebuie sa fie intre 7 si 12 ani.");
-        }
-
-        if (!isValidEmailFormat(studentDTO.getEmail())) {
-            throw new IllegalArgumentException("Email-ul nu corespunde formatului.");
-        }
-
-        ClassEntity classEntity = classEntityRepository.findById(studentDTO.getClassEntityId()).orElse(null);
-
-        if (classEntity == null) {
-            throw new IllegalArgumentException("Clasa specificata nu exista.");
-        }
-
-        if (classEntity.getStudents().size() >= 30) {
-            throw new IllegalArgumentException("The class " + classEntity.getClassName() + " is already full.");
-        }
-
-        Student student = new Student();
-
-        student.setStudentId(student.getStudentId());
-        student.setBirthdate(studentDTO.getBirthdate());
-        student.setEmail(studentDTO.getEmail());
-        student.setClassEntity(classEntity);
-        student.setFullName(studentDTO.getFullName());
-        student.setJoinDate(studentDTO.getJoinDate());
-        student.setRole(ERole.ROLE_STUDENT);
-
-        return studentRepository.save(student);
-    }
-
-    @Override
     public StudentDTO getStudentById(Long studentId) {
         Student student = studentRepository.findById(studentId).orElse(null);
 
@@ -180,18 +143,6 @@ public class StudentService implements IStudentService {
                 .orElseThrow(() -> new IllegalArgumentException("Studentul cu id-ul specificat nu exista"));
 
         studentRepository.delete(student);
-    }
-
-    public int calculateAge(LocalDate birthdate) {
-        return Period.between(birthdate, LocalDate.now()).getYears();
-    }
-
-    private boolean isValidEmailFormat(String email) {
-        String emailRegex = "^[a-zA-Z]+\\.[A-Z]+\\.[a-zA-Z]+@elev\\.ro$";
-        Pattern pattern = Pattern.compile(emailRegex);
-        Matcher matcher = pattern.matcher(email);
-
-        return matcher.matches();
     }
 
     public List<StudentDTO> filterStudents(String email, String fullName) {

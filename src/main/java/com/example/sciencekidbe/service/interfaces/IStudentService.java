@@ -8,8 +8,6 @@ import java.util.List;
 
 public interface IStudentService {
 
-       Student addStudent(StudentDTO studentDTO);
-
        StudentDTO getStudentById(Long studentId);
 
        List<StudentDTO> getAllStudents();

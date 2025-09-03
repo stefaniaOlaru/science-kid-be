@@ -32,5 +32,16 @@ public class LectureController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'PROFESOR')")
+    @GetMapping("/{lectureId}/qrs")
+    public ResponseEntity<List<String>> getQRCodesByLecture(@PathVariable Long lectureId) {
+        try{
+            List<String> qrs = lectureService.getQRCodeByLectureId(lectureId);
+            return new ResponseEntity<>(qrs,HttpStatus.OK);
+        } catch (IllegalArgumentException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
     
 }

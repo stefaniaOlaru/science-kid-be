@@ -13,7 +13,10 @@ import com.example.sciencekidbe.service.interfaces.IFileService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.Date;
+import java.util.UUID;
 
 import static com.example.sciencekidbe.helpers.FileHelpers.getBlobContainerName;
 
@@ -27,23 +30,33 @@ public class FileService implements IFileService {
     private final ManualRepository manualRepository;
     private final ObservationRepository observationRepository;
     private final LectureRepository lectureRepository;
+    private final ObservationImageRepository observationImageRepository;
 
     public FileService(StudentRepository studentRepository,
                        TeacherRepository teacherRepository,
                        ManualRepository manualRepository,
                        ObservationRepository observationRepository,
-                       LectureRepository lectureRepository) {
+                       LectureRepository lectureRepository,
+                       ObservationImageRepository observationImageRepository) {
         this.studentRepository = studentRepository;
         this.teacherRepository = teacherRepository;
         this.manualRepository = manualRepository;
         this.observationRepository = observationRepository;
         this.lectureRepository = lectureRepository;
+        this.observationImageRepository = observationImageRepository;
     }
 
     public String uploadFileToBlob(Long entityId, ContainerName containerName, String filePath) {
         // Generate UUID as blob name with original file extension
         String fileExtension = getFileExtension(filePath);
-        String blobName = containerName.name().toLowerCase() + entityId + fileExtension;
+
+        String blobName;
+        if(containerName == ContainerName.LECTURE_VIDEO || containerName == ContainerName.OBSERVATION){
+            blobName = containerName.name().toLowerCase() + entityId + "_" + UUID.randomUUID() + fileExtension;
+        }
+        else {
+            blobName = containerName.name().toLowerCase() + entityId + fileExtension;
+        }
 
         // Create container client
         BlobContainerClient containerClient = new BlobContainerClientBuilder()
@@ -113,6 +126,20 @@ public class FileService implements IFileService {
 
                 lecture.getQrCodes().add(qr);
                 lectureRepository.save(lecture);
+            }
+            case OBSERVATION ->  {
+                Observation observation = observationRepository.findById(entityId).orElse(null);
+
+                if (observation == null){
+                    throw new IllegalArgumentException("Observația nu a fost gasita");
+                }
+
+                ObservationImage observationImage = new ObservationImage();
+                observationImage.setObservation(observation);
+                observationImage.setImagePath(blobUrl);
+
+                observation.getImages().add(observationImage);
+                observationImageRepository.save(observationImage);
             }
             default -> throw new IllegalArgumentException("Container name not supported: " + containerName);
         }

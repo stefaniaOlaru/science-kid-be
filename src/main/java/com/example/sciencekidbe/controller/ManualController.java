@@ -70,7 +70,7 @@ public class ManualController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','PROFESOR' )")
     @GetMapping("/filter")
     public ResponseEntity<List<ManualDTO>> filterManuals(
             @RequestParam(required = false) String manualName,

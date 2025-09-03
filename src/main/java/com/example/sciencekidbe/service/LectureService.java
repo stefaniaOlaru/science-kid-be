@@ -55,4 +55,13 @@ public class LectureService implements ILectureService {
 
         return lectures.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
+
+    public List<String> getQRCodeByLectureId(Long lectureId){
+        Lecture lecture = lectureRepository.findById(lectureId)
+                .orElseThrow(() -> new IllegalArgumentException("Nu exista lectia"));
+
+        LectureDTO lectureDTO = convertToDTO(lecture);
+
+        return lectureDTO.getQrCodes();
+    }
 }

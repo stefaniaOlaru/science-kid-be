@@ -129,40 +129,66 @@ public class ManualService implements IManualService {
         List<Manual> manuals;
 
         if(manualName != null && publisher != null && className != null){
+            String manualNameLower = manualName.toLowerCase();
+            String publisherLower = publisher.toLowerCase();
+            String classNameLower = className.toLowerCase();
+
             manuals = manualRepository.findAll().stream()
-                    .filter(manual -> manual.getManualName().equals(manualName))
-                    .filter(manual -> manual.getPublisher().equals(publisher))
+                    .filter(manual -> manual.getManualName().toLowerCase().contains(manualNameLower))
+                    .filter(manual -> manual.getPublisher().toLowerCase().contains(publisherLower))
                     .filter(manual -> manual.getClassEntities().stream()
-                            .anyMatch(classEntity -> classEntity.getClassName().equals(className)))
+                            .anyMatch(classEntity -> classEntity.getClassName().toLowerCase().contains(classNameLower)))
                     .collect(Collectors.toList());
 
         } else if(manualName != null && publisher != null){
-                manuals = manualRepository.findAll().stream()
-                    .filter(manual -> manual.getManualName().equals(manualName))
-                    .filter(manual -> manual.getPublisher().equals(publisher))
+            String manualNameLower = manualName.toLowerCase();
+            String publisherLower = publisher.toLowerCase();
+
+            manuals = manualRepository.findAll().stream()
+                    .filter(manual -> manual.getManualName().toLowerCase().contains(manualNameLower))
+                    .filter(manual -> manual.getPublisher().toLowerCase().contains(publisherLower))
                     .collect(Collectors.toList());
 
         } else if( publisher != null && className != null){
+            String publisherLower = publisher.toLowerCase();
+            String classNameLower = className.toLowerCase();
+
             manuals = manualRepository.findAll().stream()
-                    .filter(manual -> manual.getPublisher().equals(publisher))
+                    .filter(manual -> manual.getPublisher().toLowerCase().contains(publisherLower))
                     .filter(manual -> manual.getClassEntities().stream()
-                            .anyMatch(classEntity -> classEntity.getClassName().equals(className)))
+                            .anyMatch(classEntity -> classEntity.getClassName().toLowerCase().contains(classNameLower)))
                     .collect(Collectors.toList());
 
         } else if(manualName != null && className != null){
+            String manualNameLower = manualName.toLowerCase();
+            String classNameLower = className.toLowerCase();
+
             manuals = manualRepository.findAll().stream()
-                    .filter(manual -> manual.getManualName().equals(manualName))
+                    .filter(manual -> manual.getManualName().toLowerCase().contains(manualNameLower))
                     .filter(manual -> manual.getClassEntities().stream()
-                            .anyMatch(classEntity -> classEntity.getClassName().equals(className)))
+                            .anyMatch(classEntity -> classEntity.getClassName().toLowerCase().contains(classNameLower)))
                     .collect(Collectors.toList());
         } else if(manualName != null){
-            manuals = manualRepository.findByManualName(manualName);
+            String manualNameLower = manualName.toLowerCase();
+            manuals = manualRepository.findAll().stream()
+                    .filter(manual -> manual.getManualName() != null &&
+                            manual.getManualName().toLowerCase().contains(manualNameLower))
+                    .collect(Collectors.toList());
+
 
         } else if(publisher != null){
-            manuals = manualRepository.findByPublisher(publisher);
+            String publisherLower = publisher.toLowerCase();
+            manuals = manualRepository.findAll().stream()
+                    .filter(manual -> manual.getPublisher() != null &&
+                            manual.getPublisher().toLowerCase().contains(publisherLower))
+                    .collect(Collectors.toList());
 
         } else if(className != null){
-            manuals = manualRepository.findByClassEntities_ClassName(className);
+            String classNameLower = className.toLowerCase();
+            manuals = manualRepository.findAll().stream()
+                    .filter(manual -> manual.getClassEntities().stream()
+                            .anyMatch(classEntity -> classEntity.getClassName().toLowerCase().contains(classNameLower)))
+                    .collect(Collectors.toList());
 
         } else {
             manuals = manualRepository.findAll();

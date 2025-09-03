@@ -16,5 +16,5 @@ public class CreateStudentRequest {
     private String fullName;
     private String email;
     private LocalDate birthdate;
-    private Long classId;
+    private Long classEntityId;
 }

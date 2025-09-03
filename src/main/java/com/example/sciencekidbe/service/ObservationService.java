@@ -8,6 +8,7 @@ import com.example.sciencekidbe.model.Observation;
 import com.example.sciencekidbe.model.ObservationImage;
 import com.example.sciencekidbe.model.ObservationQuestion;
 import com.example.sciencekidbe.model.Student;
+import com.example.sciencekidbe.repository.ObservationImageRepository;
 import com.example.sciencekidbe.repository.ObservationRepository;
 import io.micrometer.observation.ObservationTextPublisher;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,9 @@ public class ObservationService {
     private final ObservationRepository observationRepository;
     private final FileService fileService;
 
-    public ObservationService(ObservationRepository observationRepository, FileService fileService){
+    public ObservationService(ObservationRepository observationRepository,
+            ObservationImageRepository observationImageRepository
+            ,FileService fileService){
         this.observationRepository = observationRepository;
         this.fileService = fileService;
     }
