@@ -44,8 +44,7 @@ public class StudentAnswerController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
-
+    
     @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'PROFESOR')")
     @GetMapping("/exercise/{exerciseId}/application/{applicationId}/answers/class/{classEntityId}")
     public ResponseEntity<?> getAnswersByExerciseAndApplication(
