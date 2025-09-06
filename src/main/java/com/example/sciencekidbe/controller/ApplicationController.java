@@ -27,7 +27,7 @@ public class ApplicationController {
         this.applicationService = applicationService;
     }
 
-    @PreAuthorize("hasRole('ADMIN','PROFESOR')")
+    @PreAuthorize("hasAnyRole('ADMIN','PROFESOR')")
     @PostMapping("/add-exercise")
     public ResponseEntity<?> addExercise(@RequestBody ExerciseRequest request) {
         try {
@@ -39,7 +39,7 @@ public class ApplicationController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN','PROFESOR')")
+    @PreAuthorize("hasAnyRole('ADMIN','PROFESOR')")
     @PutMapping("/modify-exercise/{exerciseId}")
     public ResponseEntity<?> updateExercise(@PathVariable Long exerciseId,
                                             @RequestBody ExerciseRequest request) {
@@ -53,7 +53,7 @@ public class ApplicationController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN','PROFESOR')")
+    @PreAuthorize("hasAnyRole('ADMIN','PROFESOR')")
     @DeleteMapping("/remove-exercise/{exerciseId}")
     public ResponseEntity<?> deleteExercise(@PathVariable Long exerciseId) {
         try {

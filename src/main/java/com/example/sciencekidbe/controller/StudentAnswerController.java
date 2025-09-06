@@ -34,6 +34,18 @@ public class StudentAnswerController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT')")
+    @PostMapping("/submit/batch")
+    public ResponseEntity<?> submitAnswers(@RequestBody List<StudentAnswerRequest> answerRequests) {
+        try {
+            List<StudentAnswer> savedAnswers = studentAnswerService.saveStudentAnswers(answerRequests);
+            return ResponseEntity.ok(savedAnswers);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
     @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'PROFESOR')")
     @GetMapping("/exercise/{exerciseId}/application/{applicationId}/answers/class/{classEntityId}")
     public ResponseEntity<?> getAnswersByExerciseAndApplication(

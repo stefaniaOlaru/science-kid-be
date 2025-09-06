@@ -1,6 +1,7 @@
 package com.example.sciencekidbe.service;
 
 import com.example.sciencekidbe.dto.StudentAnswerDTO;
+import com.example.sciencekidbe.dto.StudentAnswerRequest;
 import com.example.sciencekidbe.model.Exercise;
 import com.example.sciencekidbe.model.Student;
 import com.example.sciencekidbe.model.StudentAnswer;
@@ -8,6 +9,7 @@ import com.example.sciencekidbe.repository.ExerciseRepository;
 import com.example.sciencekidbe.repository.StudentAnswerRepository;
 import com.example.sciencekidbe.repository.StudentRepository;
 import com.example.sciencekidbe.service.interfaces.IStudentAnswerService;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -28,7 +30,7 @@ public class StudentAnswerService implements IStudentAnswerService {
         this.studentRepository = studentRepository;
     }
 
-    public StudentAnswer saveStudentAnswer(Long studentId, Long exerciseId, String givenAnswer, LocalDateTime answeredAt){
+    public StudentAnswer saveStudentAnswer(Long studentId, Long exerciseId, String givenAnswer, LocalDateTime answeredAt) {
         Exercise exercise = exerciseRepository.findById(exerciseId)
                 .orElseThrow(() -> new IllegalArgumentException("Exercițiul nu există!"));
 
@@ -42,7 +44,7 @@ public class StudentAnswerService implements IStudentAnswerService {
 
         Optional<StudentAnswer> studentAnswerExists = studentAnswerRepository.findByStudent_StudentIdAndExercise_ExerciseId(studentId, exerciseId);
 
-        if (studentAnswerExists.isPresent()){
+        if (studentAnswerExists.isPresent()) {
             throw new IllegalArgumentException("S-a raspuns deja la acest exercitiu");
         }
 
@@ -56,8 +58,40 @@ public class StudentAnswerService implements IStudentAnswerService {
         return studentAnswerRepository.save(studentAnswer);
     }
 
-    private StudentAnswerDTO convertToDTO(StudentAnswer studentAnswer){
-        return  new StudentAnswerDTO(
+    @Transactional
+    public List<StudentAnswer> saveStudentAnswers(List<StudentAnswerRequest> requests) {
+        List<StudentAnswer> savedAnswers = new ArrayList<>();
+        for (StudentAnswerRequest request : requests) {
+            Exercise exercise = exerciseRepository.findById(request.getExerciseId())
+                    .orElseThrow(() -> new IllegalArgumentException("Exercițiul nu există!"));
+
+            Student student = studentRepository.findById(request.getStudentId())
+                    .orElseThrow(() -> new IllegalArgumentException("Studentul nu există!"));
+
+            Optional<StudentAnswer> studentAnswerExists =
+                    studentAnswerRepository.
+                            findByStudent_StudentIdAndExercise_ExerciseId(request.getStudentId(), request.getExerciseId());
+
+            if (studentAnswerExists.isPresent()) {
+                throw new IllegalArgumentException("S-a raspuns deja la acest exercitiu");
+            }
+
+            boolean isCorrect = exercise.getCorrectAnswer().equalsIgnoreCase(request.getGivenAnswer());
+
+            StudentAnswer studentAnswer = new StudentAnswer();
+            studentAnswer.setStudent(student);
+            studentAnswer.setExercise(exercise);
+            studentAnswer.setGivenAnswer(request.getGivenAnswer());
+            studentAnswer.setCorrect(isCorrect);
+            studentAnswer.setAnsweredAt(LocalDateTime.now());
+
+            savedAnswers.add(studentAnswerRepository.save(studentAnswer));
+        }
+        return savedAnswers;
+    }
+
+    private StudentAnswerDTO convertToDTO(StudentAnswer studentAnswer) {
+        return new StudentAnswerDTO(
                 studentAnswer.getAnswerId(),
                 studentAnswer.getGivenAnswer(),
                 studentAnswer.isCorrect(),
