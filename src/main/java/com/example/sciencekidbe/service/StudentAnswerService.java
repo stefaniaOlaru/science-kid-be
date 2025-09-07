@@ -2,9 +2,11 @@ package com.example.sciencekidbe.service;
 
 import com.example.sciencekidbe.dto.StudentAnswerDTO;
 import com.example.sciencekidbe.dto.StudentAnswerRequest;
+import com.example.sciencekidbe.model.Application;
 import com.example.sciencekidbe.model.Exercise;
 import com.example.sciencekidbe.model.Student;
 import com.example.sciencekidbe.model.StudentAnswer;
+import com.example.sciencekidbe.repository.ApplicationRepository;
 import com.example.sciencekidbe.repository.ExerciseRepository;
 import com.example.sciencekidbe.repository.StudentAnswerRepository;
 import com.example.sciencekidbe.repository.StudentRepository;
@@ -21,13 +23,16 @@ public class StudentAnswerService implements IStudentAnswerService {
     private final StudentAnswerRepository studentAnswerRepository;
     private final ExerciseRepository exerciseRepository;
     private final StudentRepository studentRepository;
+    private final ApplicationRepository applicationRepository;
 
     public StudentAnswerService(StudentAnswerRepository studentAnswerRepository,
                                 ExerciseRepository exerciseRepository,
-                                StudentRepository studentRepository) {
+                                StudentRepository studentRepository,
+                                ApplicationRepository applicationRepository) {
         this.studentAnswerRepository = studentAnswerRepository;
         this.exerciseRepository = exerciseRepository;
         this.studentRepository = studentRepository;
+        this.applicationRepository = applicationRepository;
     }
 
     public StudentAnswer saveStudentAnswer(Long studentId, Long exerciseId, String givenAnswer, LocalDateTime answeredAt) {
@@ -59,7 +64,7 @@ public class StudentAnswerService implements IStudentAnswerService {
     }
 
     @Transactional
-    public List<StudentAnswer> saveStudentAnswers(List<StudentAnswerRequest> requests) {
+    public List<StudentAnswerDTO> saveStudentAnswers(List<StudentAnswerRequest> requests) {
         List<StudentAnswer> savedAnswers = new ArrayList<>();
         for (StudentAnswerRequest request : requests) {
             Exercise exercise = exerciseRepository.findById(request.getExerciseId())
@@ -87,7 +92,9 @@ public class StudentAnswerService implements IStudentAnswerService {
 
             savedAnswers.add(studentAnswerRepository.save(studentAnswer));
         }
-        return savedAnswers;
+        return savedAnswers.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     private StudentAnswerDTO convertToDTO(StudentAnswer studentAnswer) {
@@ -166,6 +173,22 @@ public class StudentAnswerService implements IStudentAnswerService {
         }
 
         return result;
+    }
+
+    public boolean isApplicationSolvedByStudent(Long studentId, Long applicationId) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new IllegalArgumentException("Aplicația nu există."));
+
+        for (Exercise exercise : application.getExercises()) {
+            Optional<StudentAnswer> studentAnswer =
+                    studentAnswerRepository.findByStudent_StudentIdAndExercise_ExerciseId(studentId, exercise.getExerciseId());
+
+            if (studentAnswer.isPresent()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

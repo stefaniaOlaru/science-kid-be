@@ -50,7 +50,7 @@ public class ApplicationServiceTest {
         when(applicationRepository.findById(1L)).thenReturn(Optional.of(app));
         when(exerciseRepository.save(any(Exercise.class))).thenAnswer(i -> i.getArgument(0));
 
-        Exercise result = applicationService.addExercise(request);
+        ExerciseDTO result = applicationService.addExercise(request);
 
         assertNotNull(result);
         assertEquals("Q1", result.getQuestion());

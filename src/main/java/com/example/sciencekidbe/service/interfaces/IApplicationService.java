@@ -5,7 +5,7 @@ import com.example.sciencekidbe.dto.ExerciseRequest;
 import com.example.sciencekidbe.model.Exercise;
 
 public interface IApplicationService {
-    Exercise addExercise(ExerciseRequest request);
+    ExerciseDTO addExercise(ExerciseRequest request);
 
     ExerciseDTO updateExercise(Long exerciseId, ExerciseRequest request);
 

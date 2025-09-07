@@ -51,10 +51,9 @@ public class FileService implements IFileService {
         String fileExtension = getFileExtension(filePath);
 
         String blobName;
-        if(containerName == ContainerName.LECTURE_VIDEO || containerName == ContainerName.OBSERVATION){
+        if (containerName == ContainerName.LECTURE_VIDEO || containerName == ContainerName.OBSERVATION) {
             blobName = containerName.name().toLowerCase() + entityId + "_" + UUID.randomUUID() + fileExtension;
-        }
-        else {
+        } else {
             blobName = containerName.name().toLowerCase() + entityId + fileExtension;
         }
 
@@ -127,10 +126,10 @@ public class FileService implements IFileService {
                 lecture.getQrCodes().add(qr);
                 lectureRepository.save(lecture);
             }
-            case OBSERVATION ->  {
+            case OBSERVATION -> {
                 Observation observation = observationRepository.findById(entityId).orElse(null);
 
-                if (observation == null){
+                if (observation == null) {
                     throw new IllegalArgumentException("Observația nu a fost gasita");
                 }
 
@@ -140,6 +139,9 @@ public class FileService implements IFileService {
 
                 observation.getImages().add(observationImage);
                 observationImageRepository.save(observationImage);
+            }
+            case ACTUAL_VIDEO -> {
+
             }
             default -> throw new IllegalArgumentException("Container name not supported: " + containerName);
         }

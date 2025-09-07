@@ -21,9 +21,12 @@ public class FileHelpers {
     public static String getBlobContainerName(ContainerName containerName) {
         if (containerName == ContainerName.PROFESSOR_CV) {
             return "professor-cv";  // special case
-        } else if (containerName == ContainerName.LECTURE_VIDEO){
+        } else if (containerName == ContainerName.LECTURE_VIDEO) {
             return "lecture-video";
+        } else if (containerName == ContainerName.ACTUAL_VIDEO) {
+            return "actual-video";
         }
+
         return containerName.name().toLowerCase(); // default behavior
     }
 }
