@@ -1,7 +1,6 @@
 package com.example.sciencekidbe.controller;
 
 import com.example.sciencekidbe.dto.ExerciseDTO;
-import com.example.sciencekidbe.model.Exercise;
 import com.example.sciencekidbe.service.ExerciseService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

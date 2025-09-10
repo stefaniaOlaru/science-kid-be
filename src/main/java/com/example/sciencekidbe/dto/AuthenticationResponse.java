@@ -11,7 +11,6 @@ public class AuthenticationResponse {
     private String role;
     private Long teacherId;
 
-    // If you want, keep this all args constructor, but builder uses it internally
     public AuthenticationResponse(String token, String role, Long teacherId) {
         this.token = token;
         this.role = role;

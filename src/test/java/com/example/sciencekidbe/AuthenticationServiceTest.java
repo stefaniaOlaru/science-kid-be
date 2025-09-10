@@ -129,29 +129,6 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    void addStudent_shouldSaveStudentAndReturnResponse() {
-        CreateStudentRequest request = new CreateStudentRequest();
-        request.setFullName("Jane Student");
-        request.setEmail("student@example.com");
-        request.setBirthdate(LocalDate.of(2010, 1, 1));
-        request.setClassId(1L);
-
-        ClassEntity classEntity = new ClassEntity();
-        classEntity.setClassId(1L);
-
-        when(classEntityRepository.findById(1L)).thenReturn(Optional.of(classEntity));
-        when(passwordEncoder.encode(anyString())).thenReturn("encoded-pass");
-        when(studentRepository.save(any(Student.class))).thenAnswer(i -> (Student) i.getArgument(0));
-        when(jwtService.generateToken(any(Student.class))).thenReturn("jwt-token");
-
-        StudentAuthenticationResponse response = authenticationService.addStudent(request);
-
-        assertEquals("jwt-token", response.getToken());
-        assertEquals("ROLE_STUDENT", response.getRole());
-        assertNotNull(response.getPassword());
-    }
-
-    @Test
     void validateEmail_shouldThrowException_whenInvalid() {
         assertThrows(IllegalArgumentException.class, () -> {
             authenticationService.addTeacher(

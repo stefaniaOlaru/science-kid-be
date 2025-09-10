@@ -4,10 +4,8 @@ import com.example.sciencekidbe.enums.ContainerName;
 
 public class FileHelpers {
 
-    // Other helper methods...
-
     public static ContainerName mapStringToContainerName(String containerName) {
-        // Normalize input: lowercase + replace "-" with "_"
+
         String normalized = containerName.toLowerCase().replace("-", "_");
 
         for (ContainerName cn : ContainerName.values()) {
@@ -20,13 +18,13 @@ public class FileHelpers {
 
     public static String getBlobContainerName(ContainerName containerName) {
         if (containerName == ContainerName.PROFESSOR_CV) {
-            return "professor-cv";  // special case
+            return "professor-cv";
         } else if (containerName == ContainerName.LECTURE_VIDEO) {
             return "lecture-video";
         } else if (containerName == ContainerName.ACTUAL_VIDEO) {
             return "actual-video";
         }
 
-        return containerName.name().toLowerCase(); // default behavior
+        return containerName.name().toLowerCase();
     }
 }

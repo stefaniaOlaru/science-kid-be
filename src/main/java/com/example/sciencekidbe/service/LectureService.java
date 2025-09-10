@@ -32,7 +32,7 @@ public class LectureService implements ILectureService {
                 .filter(Objects::nonNull)
                 .distinct()
                 .map(fileService::generateUrlWithSasToken) // attach SAS token
-                .toList(); // if Java <16 use .collect(Collectors.toList())
+                .toList();
 
         return new LectureDTO(
                 lecture.getLectureId(),

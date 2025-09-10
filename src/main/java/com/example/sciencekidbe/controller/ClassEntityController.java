@@ -60,8 +60,5 @@ public class ClassEntityController {
         {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-
-
-
     }
 }

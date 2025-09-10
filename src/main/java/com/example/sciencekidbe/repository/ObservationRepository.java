@@ -9,6 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface ObservationRepository extends JpaRepository<Observation, Long>{
-    Optional<Observation> findByLecture_LectureId(Long lectureId);
 
 }

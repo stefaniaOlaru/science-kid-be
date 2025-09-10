@@ -9,5 +9,4 @@ import java.util.List;
 @Repository
 public interface ClassEntityRepository extends JpaRepository<ClassEntity, Long> {
 
-    ClassEntity findByClassName(String className);
 }

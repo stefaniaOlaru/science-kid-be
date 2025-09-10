@@ -47,7 +47,7 @@ public class FileService implements IFileService {
     }
 
     public String uploadFileToBlob(Long entityId, ContainerName containerName, String filePath) {
-        // Generate UUID as blob name with original file extension
+
         String fileExtension = getFileExtension(filePath);
 
         String blobName;
@@ -67,11 +67,11 @@ public class FileService implements IFileService {
             throw new IllegalArgumentException("Containerul nu exista!");
         }
 
-        // Get blob client and upload file
+
         BlobClient blobClient = containerClient.getBlobClient(blobName);
         blobClient.uploadFromFile(filePath, true);
 
-        // Return full URL
+
         String blobUrl = blobClient.getBlobUrl();
         switch (containerName) {
             case STUDENT -> {
@@ -156,7 +156,6 @@ public class FileService implements IFileService {
                 .connectionString(blobStorageConnectionString)
                 .buildClient();
 
-        // Read permission is enough to download
         BlobSasPermission permissions = new BlobSasPermission()
                 .setReadPermission(true);
 

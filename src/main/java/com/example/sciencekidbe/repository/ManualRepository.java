@@ -8,9 +8,5 @@ import java.util.List;
 
 @Repository
 public interface ManualRepository extends JpaRepository<Manual, Long> {
-    List<Manual> findByPublisher(String publisher);
 
-    List<Manual> findByManualName(String manualName);
-
-    List<Manual> findByClassEntities_ClassName(String className);
 }

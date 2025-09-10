@@ -12,6 +12,5 @@ import java.util.Optional;
 public interface TeacherRepository extends JpaRepository<Teacher, Long> {
     List<Teacher> findByClassEntities_ClassId(Long classId);
     Optional<Teacher> findByEmail(String email);
-    Boolean existsByEmail(String email);
     List<Teacher> findByRole(ERole role);
 }
