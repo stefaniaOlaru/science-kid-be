@@ -112,12 +112,15 @@ public class QrCodeService {
             hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
             hints.put(EncodeHintType.MARGIN, 1);
 
+            //zXing creeaza matricea qr
             BitMatrix matrix =
                     new MultiFormatWriter()
                             .encode(content, BarcodeFormat.QR_CODE, QrCodeService.QR_PX, QrCodeService.QR_PX, hints);
 
+            //zXing transforma matricea in imagine
             BufferedImage image = MatrixToImageWriter.toBufferedImage(matrix);
 
+            //fisier png temp
             Path temp = Files.createTempFile("qr_", ".png");
             try (OutputStream os = Files.newOutputStream(temp, StandardOpenOption.TRUNCATE_EXISTING)) {
                 write(image, "png", os);

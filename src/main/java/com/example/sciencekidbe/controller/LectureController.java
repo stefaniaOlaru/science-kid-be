@@ -43,5 +43,16 @@ public class LectureController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'PROFESOR')")
+    @GetMapping("/{lectureId}")
+    public ResponseEntity<?> getLectureById(@PathVariable Long lectureId) {
+        try{
+            LectureDTO lectureDTO = lectureService.getLectureById(lectureId);
+            return new ResponseEntity<>(lectureDTO,HttpStatus.OK);
+        } catch (IllegalArgumentException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
     
 }

@@ -64,4 +64,12 @@ public class LectureService implements ILectureService {
 
         return lectureDTO.getQrCodes();
     }
+
+    public LectureDTO getLectureById(Long lectureId)
+    {
+        Lecture lecture  = lectureRepository.findById(lectureId)
+                .orElseThrow(() -> new IllegalArgumentException("Nu exista lectia cu id-ul dat"));
+
+        return convertToDTO(lecture);
+    }
 }
